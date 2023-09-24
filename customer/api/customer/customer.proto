@@ -1,30 +1,40 @@
 syntax = "proto3";
-
+///kratos:clients
 package api.customer;
-
+import "google/api/annotations.proto";
 option go_package = "customer/api/customer;customer";
 option java_multiple_files = true;
 option java_package = "api.customer";
 
 service Customer {
-	rpc CreateCustomer (CreateCustomerRequest) returns (CreateCustomerReply);
-	rpc UpdateCustomer (UpdateCustomerRequest) returns (UpdateCustomerReply);
-	rpc DeleteCustomer (DeleteCustomerRequest) returns (DeleteCustomerReply);
-	rpc GetCustomer (GetCustomerRequest) returns (GetCustomerReply);
-	rpc ListCustomer (ListCustomerRequest) returns (ListCustomerReply);
+  //	rpc CreateCustomer (CreateCustomerRequest) returns (CreateCustomerReply);
+  //	rpc UpdateCustomer (UpdateCustomerRequest) returns (UpdateCustomerReply);
+  //	rpc DeleteCustomer (DeleteCustomerRequest) returns (DeleteCustomerReply);
+  rpc GetCustomer (GetCustomerRequest) returns (GetCustomerReply) {
+    option (google.api.http) = {
+      get :"/customer/get-verify-code"
+    };
+  };
+  //	rpc ListCustomer (ListCustomerRequest) returns (ListCustomerReply);
 }
 
-message CreateCustomerRequest {}
-message CreateCustomerReply {}
+//message CreateCustomerRequest {}
+//message CreateCustomerReply {}
+//
+//message UpdateCustomerRequest {}
+//message UpdateCustomerReply {}
+//
+//message DeleteCustomerRequest {}
+//message DeleteCustomerReply {}
 
-message UpdateCustomerRequest {}
-message UpdateCustomerReply {}
+message GetCustomerRequest {
+  string Telephone = 1;
+}
+message GetCustomerReply {
+  int32 Code = 1;
+  string Message = 2;
+  string Data = 3;
+}
 
-message DeleteCustomerRequest {}
-message DeleteCustomerReply {}
-
-message GetCustomerRequest {}
-message GetCustomerReply {}
-
-message ListCustomerRequest {}
-message ListCustomerReply {}
+//message ListCustomerRequest {}
+//message ListCustomerReply {}
