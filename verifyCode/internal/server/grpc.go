@@ -2,7 +2,7 @@ package server
 
 import (
 	v1 "verifyCode/api/helloworld/v1"
-	verifyCode "verifyCode/api/verifycode"
+	verifyCode "verifyCode/api/verifyCode"
 	"verifyCode/internal/conf"
 	"verifyCode/internal/service"
 
