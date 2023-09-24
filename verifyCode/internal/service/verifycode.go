@@ -28,27 +28,42 @@ func (s *VerifyCodeService) DeleteVerifyCode(ctx context.Context, req *pb.Delete
 }
 func (s *VerifyCodeService) GetVerifyCode(ctx context.Context, req *pb.GetVerifyCodeRequest) (*pb.GetVerifyCodeReply, error) {
 	return &pb.GetVerifyCodeReply{
-		Code: randCode(codeChars(req.Type), int(req.Length)),
+		Code: randCode(req.Type, int(req.Length)),
 	}, nil
 }
 func (s *VerifyCodeService) ListVerifyCode(ctx context.Context, req *pb.ListVerifyCodeRequest) (*pb.ListVerifyCodeReply, error) {
 	return &pb.ListVerifyCodeReply{}, nil
 }
 
-func codeChars(t pb.TYPE) string {
-	var chars string
+type Chars struct {
+	Value    string
+	IdxBytes int
+}
+
+func randCode(t pb.TYPE, l int) string {
+	chars := codeChars(t)
+	return randCodeMixed(chars.Value, chars.IdxBytes, l)
+}
+
+func codeChars(t pb.TYPE) Chars {
+	chars := Chars{}
 	switch t {
 	case pb.TYPE_Default:
 	case pb.TYPE_DIGIT:
-		chars = "0123456789"
+		chars.Value = "0123456789"
+		//chars.IdxBytes = "1001"
+		chars.IdxBytes = 0b1001
 	case pb.TYPE_LETTER:
-		chars = "abcdefghijklmnopqrstuvwxyz"
+		chars.Value = "abcdefghijklmnopqrstuvwxyz"
+		chars.IdxBytes = 0b11001
 	case pb.TYPE_MIXED:
-		chars = "0123456789abcdefghijklmnopqrstuvwxyz"
+		chars.Value = "0123456789abcdefghijklmnopqrstuvwxyz"
+		chars.IdxBytes = 0b100011
 	}
+
 	return chars
 }
-func randCode(chars string, l int) string {
+func randCodeSimple(chars string, l int) string {
 
 	// 利用string builder构建结果缓冲
 	sb := strings.Builder{}
@@ -59,6 +74,38 @@ func randCode(chars string, l int) string {
 	for i := 0; i < l; i++ {
 		randIndex := rn.Intn(charsLen)
 		sb.WriteByte(chars[randIndex])
+	}
+
+	return sb.String()
+}
+
+func randCodeMixed(chars string, idxBits, l int) string {
+	// 形成掩码
+	idxMask := 1<<idxBits - 1
+	// 63 位可以使用的最大组次数
+	idxMax := 63 / idxBits
+
+	// 利用string builder构建结果缓冲
+	sb := strings.Builder{}
+	sb.Grow(l)
+
+	// 循环生成随机数
+	// i 索引
+	// cache 随机数缓存
+	// remain 随机数还可以用几次
+	for i, cache, remain := l-1, rand.Int63(), idxMax; i >= 0; {
+		// 随机缓存不足，重新生成
+		if remain == 0 {
+			cache, remain = rand.Int63(), idxMax
+		}
+		// 利用掩码生成随机索引，有效索引为小于字符集合长度
+		if idx := int(cache & int64(idxMask)); idx < len(chars) {
+			sb.WriteByte(chars[idx])
+			i--
+		}
+		// 利用下一组随机数位
+		cache >>= idxBits
+		remain--
 	}
 
 	return sb.String()
