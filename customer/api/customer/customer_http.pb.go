@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.7.0
 // - protoc             v4.24.3
-// source: customer.proto
+// source: api/customer/customer.proto
 
 package customer
 
@@ -30,13 +30,16 @@ type CustomerHTTPServer interface {
 
 func RegisterCustomerHTTPServer(s *http.Server, srv CustomerHTTPServer) {
 	r := s.Route("/")
-	r.GET("/customer/get-verify-code", _Customer_GetCustomer0_HTTP_Handler(srv))
+	r.GET("/customer/get-verify-code/{Telephone}", _Customer_GetCustomer0_HTTP_Handler(srv))
 }
 
 func _Customer_GetCustomer0_HTTP_Handler(srv CustomerHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetCustomerRequest
 		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationCustomerGetCustomer)
@@ -66,7 +69,7 @@ func NewCustomerHTTPClient(client *http.Client) CustomerHTTPClient {
 
 func (c *CustomerHTTPClientImpl) GetCustomer(ctx context.Context, in *GetCustomerRequest, opts ...http.CallOption) (*GetCustomerReply, error) {
 	var out GetCustomerReply
-	pattern := "/customer/get-verify-code"
+	pattern := "/customer/get-verify-code/{Telephone}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationCustomerGetCustomer))
 	opts = append(opts, http.PathTemplate(pattern))

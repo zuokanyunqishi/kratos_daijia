@@ -12,7 +12,7 @@ service Customer {
   //	rpc DeleteCustomer (DeleteCustomerRequest) returns (DeleteCustomerReply);
   rpc GetCustomer (GetCustomerRequest) returns (GetCustomerReply) {
     option (google.api.http) = {
-      get :"/customer/get-verify-code"
+      get :"/customer/get-verify-code/{Telephone}"
     };
   };
   //	rpc ListCustomer (ListCustomerRequest) returns (ListCustomerReply);
@@ -33,7 +33,9 @@ message GetCustomerRequest {
 message GetCustomerReply {
   int32 Code = 1;
   string Message = 2;
-  string Data = 3;
+  string verify_code = 3;
+  int64 verify_code_time = 4;
+  int64 verify_code_life = 5;
 }
 
 //message ListCustomerRequest {}

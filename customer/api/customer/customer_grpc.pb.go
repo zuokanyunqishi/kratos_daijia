@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.24.3
-// source: customer.proto
+// source: api/customer/customer.proto
 
-//
+///kratos:clients
 
 package customer
 
@@ -113,5 +113,5 @@ var Customer_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "customer.proto",
+	Metadata: "api/customer/customer.proto",
 }
