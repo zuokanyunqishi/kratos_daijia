@@ -33,9 +33,9 @@ message GetCustomerRequest {
 message GetCustomerReply {
   int32 Code = 1;
   string Message = 2;
-  string verify_code = 3;
-  int64 verify_code_time = 4;
-  int64 verify_code_life = 5;
+  string verifyCode = 3;
+  int64 verifyCodeTime = 4;
+  int64 verifyCodeLife = 5;
 }
 
 //message ListCustomerRequest {}
