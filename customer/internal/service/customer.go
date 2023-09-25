@@ -53,7 +53,13 @@ func (s *CustomerService) GetCustomer(ctx context.Context, req *pb.GetCustomerRe
 			Message: "验证码获取错误",
 		}, nil
 	}
-	s.cus.SetCache(ctx, nil)
+	err = s.cus.SetPhoneCode(ctx, req.Telephone, code.Code, 60)
+	if err != nil {
+		return &pb.GetCustomerReply{
+			Code:    1,
+			Message: "验证码缓存错误",
+		}, nil
+	}
 
 	return &pb.GetCustomerReply{
 		Code:           0,

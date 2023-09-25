@@ -6,11 +6,13 @@ import (
 )
 
 type CustomerRepo interface {
-	SetPhoneCode(ctx context.Context, customer *Customer) (*Customer, error)
+	CachePhoneCode(ctx context.Context, customer *Customer) error
 }
 
 // Customer Model
 type Customer struct {
+	Telephone     string
+	TelephoneCode string
 }
 
 // CustomerUsecase GreeterUsecase is a Customer usecase.
@@ -24,6 +26,9 @@ func NewCustomerUsecase(repo CustomerRepo, logger log.Logger) *CustomerUsecase {
 	return &CustomerUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (u *CustomerUsecase) SetCache(ctx context.Context, customer *Customer) {
-	u.repo.SetPhoneCode(ctx, customer)
+func (u *CustomerUsecase) SetPhoneCode(ctx context.Context, phone, code string, expireTime int64) error {
+	return u.repo.CachePhoneCode(ctx, &Customer{
+		Telephone:     phone,
+		TelephoneCode: code,
+	})
 }

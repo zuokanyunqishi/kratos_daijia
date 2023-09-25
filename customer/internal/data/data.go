@@ -19,6 +19,10 @@ type Data struct {
 	redis *redis.Client
 }
 
+func (d *Data) Redis() *redis.Client {
+	return d.redis
+}
+
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {

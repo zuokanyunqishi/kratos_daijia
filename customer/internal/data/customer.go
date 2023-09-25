@@ -11,13 +11,12 @@ type customerRepo struct {
 	log  *log.Helper
 }
 
-func (r *customerRepo) SetPhoneCode(ctx context.Context, customer *biz.Customer) (*biz.Customer, error) {
-	//TODO implement me
-	r.data.redis.Set(ctx, "", "", 60)
-	return nil, nil
+func (r *customerRepo) CachePhoneCode(ctx context.Context, customer *biz.Customer) error {
+
+	statusCmd := r.data.redis.Set(ctx, "CachePhoneCode:"+customer.Telephone, customer.TelephoneCode, 60)
+	return statusCmd.Err()
 }
 
-// NewCustomerRepo
 func NewCustomerRepo(data *Data, logger log.Logger) biz.CustomerRepo {
 	return &customerRepo{
 		data: data,
