@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"customer/api/verifyCode"
+	"customer/internal/biz"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"regexp"
 	"time"
@@ -12,10 +13,13 @@ import (
 
 type CustomerService struct {
 	pb.UnimplementedCustomerServer
+	cus *biz.CustomerUsecase
 }
 
-func NewCustomerService() *CustomerService {
-	return &CustomerService{}
+func NewCustomerService(cus *biz.CustomerUsecase) *CustomerService {
+	return &CustomerService{
+		cus: cus,
+	}
 }
 
 func (s *CustomerService) GetCustomer(ctx context.Context, req *pb.GetCustomerRequest) (*pb.GetCustomerReply, error) {
@@ -49,6 +53,8 @@ func (s *CustomerService) GetCustomer(ctx context.Context, req *pb.GetCustomerRe
 			Message: "验证码获取错误",
 		}, nil
 	}
+	s.cus.SetCache(ctx, nil)
+
 	return &pb.GetCustomerReply{
 		Code:           0,
 		VerifyCode:     code.Code,
