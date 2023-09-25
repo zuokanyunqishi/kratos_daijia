@@ -4,7 +4,6 @@ import (
 	"context"
 	"customer/api/verifyCode"
 	"customer/internal/biz"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"regexp"
 	"time"
 
@@ -34,36 +33,23 @@ func (s *CustomerService) GetCustomer(ctx context.Context, req *pb.GetCustomerRe
 			Message: "电话号码格式错误",
 		}, nil
 	}
-	// 获取验证码
-	//
-	conn, err := grpc.DialInsecure(context.Background(),
-		grpc.WithEndpoint("localhost:9000"))
-	defer conn.Close()
-
-	// 构建客户端
-	client := verifyCode.NewVerifyCodeClient(conn)
-	code, err := client.GetVerifyCode(ctx, &verifyCode.GetVerifyCodeRequest{
-		Length: 6,
-		Type:   verifyCode.TYPE_DIGIT,
-	})
-
+	code, err := s.cus.GetVerifyCode(ctx, 6, verifyCode.TYPE_DIGIT)
 	if err != nil {
 		return &pb.GetCustomerReply{
 			Code:    1,
 			Message: "验证码获取错误",
 		}, nil
 	}
-	err = s.cus.SetVerifyCode(ctx, req.Telephone, code.Code, 60)
+	err = s.cus.SetVerifyCode(ctx, req.Telephone, code, 60)
 	if err != nil {
 		return &pb.GetCustomerReply{
 			Code:    1,
 			Message: "验证码缓存错误",
 		}, nil
 	}
-
 	return &pb.GetCustomerReply{
 		Code:           0,
-		VerifyCode:     code.Code,
+		VerifyCode:     code,
 		VerifyCodeTime: time.Now().Unix(),
 		VerifyCodeLife: 60,
 	}, nil

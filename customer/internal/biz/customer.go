@@ -2,11 +2,13 @@ package biz
 
 import (
 	"context"
+	"customer/api/verifyCode"
 	"github.com/go-kratos/kratos/v2/log"
 )
 
 type CustomerRepo interface {
 	CachePhoneCode(ctx context.Context, customer *Customer, liftTime int64) error
+	GetVerifyCode(ctx context.Context, length uint32, t verifyCode.TYPE) (string, error)
 }
 
 // Customer Model
@@ -31,4 +33,8 @@ func (u *CustomerUsecase) SetVerifyCode(ctx context.Context, phone, code string,
 		Telephone:     phone,
 		TelephoneCode: code,
 	}, expireTime)
+}
+
+func (u *CustomerUsecase) GetVerifyCode(ctx context.Context, length uint32, t verifyCode.TYPE) (string, error) {
+	return u.repo.GetVerifyCode(ctx, length, t)
 }
