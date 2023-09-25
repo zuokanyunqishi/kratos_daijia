@@ -12,9 +12,11 @@ type customerRepo struct {
 	log  *log.Helper
 }
 
-func (r *customerRepo) CachePhoneCode(ctx context.Context, customer *biz.Customer) error {
+func (r *customerRepo) CachePhoneCode(ctx context.Context, customer *biz.Customer, lifeTime int64) error {
 
-	statusCmd := r.data.redis.Set(ctx, "CachePhoneCode:"+customer.Telephone, customer.TelephoneCode, time.Second*60)
+	statusCmd := r.data.redis.Set(ctx, "CachePhoneCode:"+customer.Telephone,
+		customer.TelephoneCode,
+		time.Second*time.Duration(lifeTime))
 	return statusCmd.Err()
 }
 

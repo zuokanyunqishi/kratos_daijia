@@ -25,16 +25,19 @@ func (d *Data) Redis() *redis.Client {
 
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
+	data := &Data{
+		redis: initRedis(c),
+	}
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
+		// 关掉 redis 连接
+		data.redis.Close()
 	}
-	return &Data{
-		redis: initRedis(c),
-	}, cleanup, nil
+	return data, cleanup, nil
 }
 
 func initRedis(c *conf.Data) *redis.Client {
-	url := fmt.Sprintf("redis://%s/1?dial_timeout=1", c.Redis.GetAddr())
+	url := fmt.Sprintf("redis://%s/1?dial_timeout=%d", c.Redis.GetAddr(), 1)
 	options, _ := redis.ParseURL(url)
 	client := redis.NewClient(options)
 	status := client.Ping(context.Background())

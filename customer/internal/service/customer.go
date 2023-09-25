@@ -53,7 +53,7 @@ func (s *CustomerService) GetCustomer(ctx context.Context, req *pb.GetCustomerRe
 			Message: "验证码获取错误",
 		}, nil
 	}
-	err = s.cus.SetPhoneCode(ctx, req.Telephone, code.Code, 60)
+	err = s.cus.SetVerifyCode(ctx, req.Telephone, code.Code, 60)
 	if err != nil {
 		return &pb.GetCustomerReply{
 			Code:    1,

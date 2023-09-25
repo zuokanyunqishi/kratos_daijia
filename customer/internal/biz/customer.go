@@ -6,7 +6,7 @@ import (
 )
 
 type CustomerRepo interface {
-	CachePhoneCode(ctx context.Context, customer *Customer) error
+	CachePhoneCode(ctx context.Context, customer *Customer, liftTime int64) error
 }
 
 // Customer Model
@@ -26,9 +26,9 @@ func NewCustomerUsecase(repo CustomerRepo, logger log.Logger) *CustomerUsecase {
 	return &CustomerUsecase{repo: repo, log: log.NewHelper(logger)}
 }
 
-func (u *CustomerUsecase) SetPhoneCode(ctx context.Context, phone, code string, expireTime int64) error {
+func (u *CustomerUsecase) SetVerifyCode(ctx context.Context, phone, code string, expireTime int64) error {
 	return u.repo.CachePhoneCode(ctx, &Customer{
 		Telephone:     phone,
 		TelephoneCode: code,
-	})
+	}, expireTime)
 }
