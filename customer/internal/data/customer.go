@@ -4,6 +4,7 @@ import (
 	"context"
 	"customer/internal/biz"
 	"github.com/go-kratos/kratos/v2/log"
+	"time"
 )
 
 type customerRepo struct {
@@ -13,7 +14,7 @@ type customerRepo struct {
 
 func (r *customerRepo) CachePhoneCode(ctx context.Context, customer *biz.Customer) error {
 
-	statusCmd := r.data.redis.Set(ctx, "CachePhoneCode:"+customer.Telephone, customer.TelephoneCode, 60)
+	statusCmd := r.data.redis.Set(ctx, "CachePhoneCode:"+customer.Telephone, customer.TelephoneCode, time.Second*60)
 	return statusCmd.Err()
 }
 
