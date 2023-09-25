@@ -1,0 +1,8 @@
+services:
+  redis:
+    image: redis
+    container_name: daijia_customer_redis
+    ports:
+      - "6391:6379"
+    volumes:
+      - ./data/redis:/data
