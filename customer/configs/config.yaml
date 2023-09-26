@@ -13,3 +13,5 @@ data:
     addr: 127.0.0.1:6391
     read_timeout: 0.2s
     write_timeout: 0.2s
+Auth:
+  api_key: "90feaefb-6497-4843-b0c2-f5465e53e39b"
