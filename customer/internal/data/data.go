@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"customer/internal/biz"
 	"customer/internal/conf"
 	"fmt"
 	"github.com/redis/go-redis/v9"
@@ -37,6 +38,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		// 关掉 redis 连接
 		data.redis.Close()
 	}
+	// 初始化表模型
+	migrateTable(data.mysql)
 	return data, cleanup, nil
 }
 
@@ -58,4 +61,11 @@ func initMysql(c *conf.Data) *gorm.DB {
 		panic(err)
 	}
 	return db
+}
+
+func migrateTable(db *gorm.DB) {
+	if err := db.AutoMigrate(&biz.Customer{}); err != nil {
+		log.Error(err)
+	}
+
 }

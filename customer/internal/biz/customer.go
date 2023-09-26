@@ -3,7 +3,9 @@ package biz
 import (
 	"context"
 	"customer/api/verifyCode"
+	"database/sql"
 	"github.com/go-kratos/kratos/v2/log"
+	"gorm.io/gorm"
 )
 
 type CustomerRepo interface {
@@ -13,8 +15,25 @@ type CustomerRepo interface {
 
 // Customer Model
 type Customer struct {
+	gorm.Model
+	CustomerWork
+	CustomerToken
 	Telephone     string
 	TelephoneCode string
+}
+
+type CustomerWork struct {
+	Telephone     string `gorm:"type:varchar(15);unique" json:"telephone,omitempty"`
+	TelephoneCode string `gorm:"type:varchar(15)" json:"telephone_code"`
+	Name          string `gorm:"type:varchar(150)" json:"name,omitempty"`
+	Email         string `gorm:"type:varchar(55);unique" json:"email,omitempty"`
+	Wechat        string `gorm:"type:varchar(150)" json:"wechat,omitempty"`
+	//CityId    uint32
+}
+
+type CustomerToken struct {
+	Token         string       `gorm:"type:varchar(255)" json:"token,omitempty"`
+	TokenCratedAt sql.NullTime `json:"token_crated_at"`
 }
 
 // CustomerUsecase GreeterUsecase is a Customer usecase.
