@@ -9,7 +9,7 @@ import (
 )
 
 type CustomerRepo interface {
-	CachePhoneCode(ctx context.Context, customer *Customer, liftTime int64) error
+	CachePhoneCode(ctx context.Context, telephone, phoneCode string, liftTime int64) error
 	GetVerifyCode(ctx context.Context, length uint32, t verifyCode.TYPE) (string, error)
 }
 
@@ -18,15 +18,14 @@ type Customer struct {
 	gorm.Model
 	CustomerWork
 	CustomerToken
-	Telephone     string
-	TelephoneCode string
 }
 
 type CustomerWork struct {
+	ID            int    `gorm:"primaryKey" json:"id"`
 	Telephone     string `gorm:"type:varchar(15);unique" json:"telephone,omitempty"`
 	TelephoneCode string `gorm:"type:varchar(15)" json:"telephone_code"`
 	Name          string `gorm:"type:varchar(150)" json:"name,omitempty"`
-	Email         string `gorm:"type:varchar(55);unique" json:"email,omitempty"`
+	Email         string `gorm:"type:varchar(55)" json:"email,omitempty"`
 	Wechat        string `gorm:"type:varchar(150)" json:"wechat,omitempty"`
 	//CityId    uint32
 }
@@ -48,10 +47,7 @@ func NewCustomerUsecase(repo CustomerRepo, logger log.Logger) *CustomerUsecase {
 }
 
 func (u *CustomerUsecase) SetVerifyCode(ctx context.Context, phone, code string, expireTime int64) error {
-	return u.repo.CachePhoneCode(ctx, &Customer{
-		Telephone:     phone,
-		TelephoneCode: code,
-	}, expireTime)
+	return u.repo.CachePhoneCode(ctx, phone, code, expireTime)
 }
 
 func (u *CustomerUsecase) GetVerifyCode(ctx context.Context, length uint32, t verifyCode.TYPE) (string, error) {

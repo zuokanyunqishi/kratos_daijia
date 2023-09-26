@@ -30,10 +30,8 @@ func (r *customerData) GetVerifyCode(ctx context.Context, length uint32, t verif
 	return code.Code, nil
 }
 
-func (r *customerData) CachePhoneCode(ctx context.Context, customer *biz.Customer, lifeTime int64) error {
-	statusCmd := r.data.redis.Set(ctx, "CachePhoneCode:"+customer.Telephone,
-		customer.TelephoneCode,
-		time.Second*time.Duration(lifeTime))
+func (r *customerData) CachePhoneCode(ctx context.Context, phone, verifyCode string, lifeTime int64) error {
+	statusCmd := r.data.redis.Set(ctx, "CachePhoneCode:"+phone, verifyCode, time.Second*time.Duration(lifeTime))
 	return statusCmd.Err()
 }
 
