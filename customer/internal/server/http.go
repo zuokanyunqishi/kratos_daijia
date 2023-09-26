@@ -28,7 +28,7 @@ func NewWhiteListMatcher() selector.MatchFunc {
 }
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService,
+func NewHTTPServer(c *conf.Server, cAuth *conf.Auth, greeter *service.GreeterService,
 	customerService *service.CustomerService,
 	logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
@@ -36,7 +36,7 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService,
 			recovery.Recovery(),
 			selector.Server(
 				jwt.Server(func(token *jwt2.Token) (interface{}, error) {
-					return []byte("aaaa"), nil
+					return []byte(cAuth.ApiKey), nil
 				}, jwt.WithSigningMethod(jwt2.SigningMethodHS256), jwt.WithClaims(func() jwt2.Claims {
 					return &jwt2.MapClaims{}
 				})),
