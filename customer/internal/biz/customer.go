@@ -31,8 +31,8 @@ type CustomerWork struct {
 }
 
 type CustomerToken struct {
-	Token         string       `gorm:"type:varchar(255)" json:"token,omitempty"`
-	TokenCratedAt sql.NullTime `json:"token_crated_at"`
+	Token          string       `gorm:"type:varchar(255)" json:"token,omitempty"`
+	TokenCreatedAt sql.NullTime `json:"token_created_at"`
 }
 
 // CustomerUsecase GreeterUsecase is a Customer usecase.
