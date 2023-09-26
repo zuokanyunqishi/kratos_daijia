@@ -34,6 +34,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /customer/login:
+        post:
+            tags:
+                - Customer
+            description: 登录
+            operationId: Customer_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LoginReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LoginRes'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
     schemas:
         GetCustomerReply:
@@ -58,6 +83,27 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        LoginReq:
+            type: object
+            properties:
+                telephone:
+                    type: string
+                verifyCode:
+                    type: string
+        LoginRes:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+                token:
+                    type: string
+                tokenCreateAt:
+                    type: string
+                tokenLifeTime:
+                    type: string
         Status:
             type: object
             properties:

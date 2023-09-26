@@ -15,7 +15,30 @@ service Customer {
       get :"/customer/get-verify-code/{Telephone}"
     };
   };
+
+  // 登录
+  rpc Login (LoginReq) returns (LoginRes) {
+    option (google.api.http) = {
+      post :"/customer/login";
+      body :"*";
+    };
+  }
   //	rpc ListCustomer (ListCustomerRequest) returns (ListCustomerReply);
+}
+
+
+message LoginReq{
+  string telephone = 1;
+  string verify_code = 3;
+
+}
+
+message LoginRes{
+  int32 code = 1;
+  string message = 2;
+  string token = 3;
+  int64 token_create_at = 4;
+  int64  token_life_time = 5;
 }
 
 //message CreateCustomerRequest {}
