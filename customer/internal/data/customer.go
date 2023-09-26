@@ -4,6 +4,7 @@ import (
 	"context"
 	"customer/api/verifyCode"
 	"customer/internal/biz"
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
@@ -16,8 +17,17 @@ type customerData struct {
 	log  *log.Helper
 }
 
-func (d *customerData) UpdateCustomer(ctx context.Context, c *biz.Customer) (*biz.Customer, error) {
-	result := d.data.mysql.WithContext(ctx).Save(c)
+func (d *customerData) UpdateCustomerToken(ctx context.Context, c *biz.Customer) (*biz.Customer, error) {
+	var customer biz.Customer
+	customer.ID = c.ID
+	customer.Token = c.Token
+	customer.TokenCreatedAt = sql.NullTime{Time: time.Now(), Valid: true}
+	//customer.UpdatedAt = time.Now()
+	result := d.data.mysql.
+		WithContext(ctx).
+		Model(&customer).
+		Select("token", "token_created_at").
+		Updates(customer)
 	return c, result.Error
 }
 
@@ -61,7 +71,7 @@ func (d *customerData) CachePhoneCode(ctx context.Context, phone, verifyCode str
 }
 
 func (d *customerData) GetVerifyCode(ctx context.Context, telephone string) string {
-	return d.data.redis.Get(ctx, "CachePhoneCode:"+telephone).String()
+	return d.data.redis.Get(ctx, "CachePhoneCode:"+telephone).Val()
 }
 
 func (d *customerData) GetCustomerByTelephone(ctx context.Context, telephone string) (biz.Customer, error) {

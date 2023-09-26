@@ -18,7 +18,7 @@ type CustomerRepo interface {
 	GetVerifyCode(ctx context.Context, telephone string) string
 	GetCustomerByTelephone(ctx context.Context, telephone string) (Customer, error)
 	QuickCreateCustomerByPhone(ctx context.Context, telephone string) (Customer, error)
-	UpdateCustomer(ctx context.Context, c *Customer) (*Customer, error)
+	UpdateCustomerToken(ctx context.Context, c *Customer) (*Customer, error)
 }
 
 // Customer Model
@@ -29,7 +29,6 @@ type Customer struct {
 }
 
 type CustomerWork struct {
-	ID            int    `gorm:"primaryKey" json:"id"`
 	Telephone     string `gorm:"type:varchar(15);unique" json:"telephone,omitempty"`
 	TelephoneCode string `gorm:"type:varchar(15)" json:"telephone_code"`
 	Name          string `gorm:"type:varchar(150)" json:"name,omitempty"`
@@ -82,15 +81,14 @@ func (u *CustomerUsecase) GenerateTokenAndSave(ctx context.Context, customer *Cu
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenLife)),
 		NotBefore: nil,
 		IssuedAt:  nil,
-		ID:        fmt.Sprintf("%d", customer.CustomerWork.ID),
+		ID:        fmt.Sprintf("%d", customer.ID),
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString(tokenSecret)
+	signedToken, err := token.SignedString([]byte(tokenSecret))
 	if err != nil {
 		return "", errors.New("biz:customer:GenerateTokenAndSave# signToken fail")
 	}
-	if _, err := u.GetRepo().UpdateCustomer(ctx, customer); err != nil {
+	if _, err := u.GetRepo().UpdateCustomerToken(ctx, customer); err != nil {
 		return "", errors.New("biz:customer:GenerateTokenAndSave# updateCustomer fail")
 	}
 
