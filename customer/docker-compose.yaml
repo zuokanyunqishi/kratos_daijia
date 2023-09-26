@@ -6,3 +6,14 @@ services:
       - "6391:6379"
     volumes:
       - ./data/redis:/data
+
+  mysql:
+    image: mysql
+    container_name: daijia_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: daijia
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./data/mysql:/var/lib/mysql
