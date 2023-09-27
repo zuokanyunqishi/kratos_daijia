@@ -21,6 +21,7 @@ type CustomerRepo interface {
 	QuickCreateCustomerByPhone(ctx context.Context, telephone string) (Customer, error)
 	UpdateCustomerToken(ctx context.Context, c *Customer) (*Customer, error)
 	GetTokenById(ctx context.Context, id int64) (string, error)
+	DeleteToken(ctx context.Context, id int64) error
 }
 
 // Customer Model

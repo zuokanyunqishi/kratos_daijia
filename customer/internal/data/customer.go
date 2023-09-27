@@ -17,6 +17,17 @@ type customerData struct {
 	log  *log.Helper
 }
 
+func (d *customerData) DeleteToken(ctx context.Context, id int64) error {
+	var customer biz.Customer
+	customer.ID = uint(id)
+	customer.Token = ""
+	result := d.data.mysql.WithContext(ctx).
+		Model(&customer).
+		Select("token").
+		Updates(customer)
+	return result.Error
+}
+
 func (d *customerData) GetTokenById(ctx context.Context, id int64) (string, error) {
 
 	var token string
