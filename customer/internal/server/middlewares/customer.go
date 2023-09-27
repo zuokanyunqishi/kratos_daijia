@@ -8,6 +8,7 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/transport"
 	jwt2 "github.com/golang-jwt/jwt/v4"
+	"strconv"
 	"strings"
 )
 
@@ -36,14 +37,15 @@ func CustomerJwt(customerService *service.CustomerService) middleware.Middleware
 				if !ok {
 					return nil, errors.Unauthorized(Reason, "claims not found")
 				}
-				claims := token.(jwt2.MapClaims)
-				customerId := claims["jti"]
-
+				claims := *(token.(*jwt2.MapClaims))
+				customerId, err := strconv.ParseInt(claims["jti"].(string), 10, 64)
+				if err != nil {
+					return nil, errors.Unauthorized(Reason, "customerId invert err ")
+				}
 				auths := strings.SplitN(header.RequestHeader().Get(AuthorizationKey), " ", 2)
-
 				jwtToken := auths[1]
+				dbToken, err := customerService.GetTokenById(ctx, customerId)
 
-				dbToken, err := customerService.GetTokenById(ctx, customerId.(int64))
 				if err != nil || dbToken != jwtToken {
 					return nil, errors.Unauthorized(Reason, "db token err ")
 				}

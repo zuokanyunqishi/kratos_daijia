@@ -4,10 +4,10 @@ import (
 	"context"
 	"customer/api/verifyCode"
 	"customer/internal/biz"
-	"fmt"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	jwt2 "github.com/golang-jwt/jwt/v4"
 	"regexp"
+	"strconv"
 	"time"
 
 	pb "customer/api/customer"
@@ -110,10 +110,20 @@ func (s *CustomerService) Logout(ctx context.Context, req *pb.LogoutReq) (*pb.Lo
 			Message: "注销登录失败",
 		}, nil
 	}
-	mapClaims := claims.(jwt2.MapClaims)
-	err := s.cus.GetRepo().DeleteToken(ctx, mapClaims["jti"].(int64))
+	mapClaims := *(claims.(*jwt2.MapClaims))
+	customerId, err := strconv.ParseInt(mapClaims["jti"].(string), 10, 64)
 	if err != nil {
-		fmt.Println(err, "注销登录失败")
+		return &pb.LogoutRes{
+			Code:    1,
+			Message: "注销登录失败",
+		}, nil
+	}
+	err = s.cus.GetRepo().DeleteToken(ctx, customerId)
+	if err != nil {
+		return &pb.LogoutRes{
+			Code:    1,
+			Message: "删除token 失败",
+		}, nil
 	}
 
 	return &pb.LogoutRes{}, nil

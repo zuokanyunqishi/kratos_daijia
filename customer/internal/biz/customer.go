@@ -91,6 +91,7 @@ func (u *CustomerUsecase) GenerateTokenAndSave(ctx context.Context, customer *Cu
 	if err != nil {
 		return "", errors.New("biz:customer:GenerateTokenAndSave# signToken fail")
 	}
+	customer.Token = signedToken
 	if _, err := u.GetRepo().UpdateCustomerToken(ctx, customer); err != nil {
 		return "", errors.New("biz:customer:GenerateTokenAndSave# updateCustomer fail")
 	}

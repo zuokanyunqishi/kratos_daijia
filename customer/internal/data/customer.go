@@ -30,12 +30,13 @@ func (d *customerData) DeleteToken(ctx context.Context, id int64) error {
 
 func (d *customerData) GetTokenById(ctx context.Context, id int64) (string, error) {
 
-	var token string
-	result := d.data.mysql.WithContext(ctx).Select("token").Where("id = ?", id).First(&token)
-	if result.RowsAffected <= 0 {
-		return "", result.Error
+	var customer biz.Customer
+	result := d.data.mysql.WithContext(ctx).Select("token").First(&customer, "id = ?", id)
+
+	if result.Error != nil || result.RowsAffected <= 0 {
+		return "", errors.New("not found token")
 	}
-	return token, nil
+	return customer.Token, nil
 }
 
 func (d *customerData) UpdateCustomerToken(ctx context.Context, c *biz.Customer) (*biz.Customer, error) {
