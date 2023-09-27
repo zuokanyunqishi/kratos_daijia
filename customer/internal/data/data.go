@@ -58,7 +58,7 @@ func initRedis(c *conf.Data) *redis.Client {
 func initMysql(c *conf.Data) *gorm.DB {
 	//dsn := "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(c.Database.Source), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logger.Error),
 	})
 	if err != nil {
 		panic(err)
