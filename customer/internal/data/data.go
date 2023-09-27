@@ -60,7 +60,6 @@ func initMysql(c *conf.Data) *gorm.DB {
 	db, err := gorm.Open(mysql.Open(c.Database.Source), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
-
 	if err != nil {
 		panic(err)
 	}
@@ -71,5 +70,4 @@ func migrateTable(db *gorm.DB) {
 	if err := db.AutoMigrate(&biz.Customer{}); err != nil {
 		log.Error(err)
 	}
-
 }

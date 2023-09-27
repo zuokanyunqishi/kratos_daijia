@@ -17,6 +17,16 @@ type customerData struct {
 	log  *log.Helper
 }
 
+func (d *customerData) GetTokenById(ctx context.Context, id int64) (string, error) {
+
+	var token string
+	result := d.data.mysql.WithContext(ctx).Select("token").Where("id = ?", id).First(&token)
+	if result.RowsAffected <= 0 {
+		return "", result.Error
+	}
+	return token, nil
+}
+
 func (d *customerData) UpdateCustomerToken(ctx context.Context, c *biz.Customer) (*biz.Customer, error) {
 	var customer biz.Customer
 	customer.ID = c.ID

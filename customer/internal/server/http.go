@@ -5,6 +5,7 @@ import (
 	"customer/api/customer"
 	v1 "customer/api/helloworld/v1"
 	"customer/internal/conf"
+	"customer/internal/server/middlewares"
 	"customer/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
@@ -40,6 +41,7 @@ func NewHTTPServer(c *conf.Server, cAuth *conf.Auth, greeter *service.GreeterSer
 				}, jwt.WithSigningMethod(jwt2.SigningMethodHS256), jwt.WithClaims(func() jwt2.Claims {
 					return &jwt2.MapClaims{}
 				})),
+				middlewares.CustomerJwt(customerService),
 			).
 				Match(NewWhiteListMatcher()).
 				Build(),

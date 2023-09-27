@@ -102,3 +102,7 @@ func (s *CustomerService) Logout(ctx context.Context, req *pb.LogoutReq) (*pb.Lo
 
 	return &pb.LogoutRes{}, nil
 }
+
+func (s *CustomerService) GetTokenById(ctx context.Context, id int64) (string, error) {
+	return s.cus.GetRepo().GetTokenById(ctx, id)
+}
