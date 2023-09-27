@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"customer/api/verifyCode"
+	"customer/internal/conf"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -44,13 +45,14 @@ type CustomerToken struct {
 
 // CustomerUsecase is a Customer usecase.
 type CustomerUsecase struct {
-	repo CustomerRepo
-	log  *log.Helper
+	repo    CustomerRepo
+	log     *log.Helper
+	cnfAuth *conf.Auth
 }
 
 // NewCustomerUsecase NewGreeterUsecase new a Customer usecase.
-func NewCustomerUsecase(repo CustomerRepo, logger log.Logger) *CustomerUsecase {
-	return &CustomerUsecase{repo: repo, log: log.NewHelper(logger)}
+func NewCustomerUsecase(config *conf.Auth, repo CustomerRepo, logger log.Logger) *CustomerUsecase {
+	return &CustomerUsecase{cnfAuth: config, repo: repo, log: log.NewHelper(logger)}
 }
 
 func (u *CustomerUsecase) CachePhoneCode(ctx context.Context, phone, code string, expireTime int64) error {
@@ -70,7 +72,6 @@ func (u *CustomerUsecase) GetRepo() CustomerRepo {
 }
 
 func (u *CustomerUsecase) GenerateTokenAndSave(ctx context.Context, customer *Customer, tokenLife time.Duration) (string, error) {
-	tokenSecret := "97bb3d50-c435-4e9e-b58b-c0579feeb442"
 	claims := jwt.RegisteredClaims{
 		// 签发机构
 		Issuer: "Daijia",
@@ -84,7 +85,7 @@ func (u *CustomerUsecase) GenerateTokenAndSave(ctx context.Context, customer *Cu
 		ID:        fmt.Sprintf("%d", customer.ID),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString([]byte(tokenSecret))
+	signedToken, err := token.SignedString([]byte(u.cnfAuth.ApiKey))
 	if err != nil {
 		return "", errors.New("biz:customer:GenerateTokenAndSave# signToken fail")
 	}

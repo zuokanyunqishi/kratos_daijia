@@ -15,10 +15,9 @@ import (
 )
 
 func NewWhiteListMatcher() selector.MatchFunc {
-
 	whiteList := make(map[string]struct{})
-	whiteList["/shop.interface.v1.ShopInterface/Login"] = struct{}{}
-	whiteList["/shop.interface.v1.ShopInterface/Register"] = struct{}{}
+	whiteList["/api.customer.Customer/GetCustomer"] = struct{}{}
+	whiteList["/api.customer.Customer/Login"] = struct{}{}
 	return func(ctx context.Context, operation string) bool {
 		if _, ok := whiteList[operation]; ok {
 			return false
@@ -34,6 +33,7 @@ func NewHTTPServer(c *conf.Server, cAuth *conf.Auth, greeter *service.GreeterSer
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
+			// jwt 中间件验证
 			selector.Server(
 				jwt.Server(func(token *jwt2.Token) (interface{}, error) {
 					return []byte(cAuth.ApiKey), nil

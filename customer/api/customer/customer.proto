@@ -24,9 +24,22 @@ service Customer {
     };
   }
   //	rpc ListCustomer (ListCustomerRequest) returns (ListCustomerReply);
+
+  // 登出
+  rpc Logout(LogoutReq) returns (LogoutRes) {
+    option (google.api.http) = {
+      post :"/customer/logout",
+      body:"*";
+    };
+  }
 }
+message LogoutReq {
 
-
+}
+message LogoutRes {
+  int32 Code = 1;
+  string Message = 2;
+}
 message LoginReq{
   string telephone = 1;
   string verify_code = 3;

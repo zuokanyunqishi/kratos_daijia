@@ -97,3 +97,8 @@ func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.Logi
 		TokenLifeTime: TokenLifeTime,
 	}, nil
 }
+
+func (s *CustomerService) Logout(ctx context.Context, req *pb.LogoutReq) (*pb.LogoutRes, error) {
+
+	return &pb.LogoutRes{}, nil
+}

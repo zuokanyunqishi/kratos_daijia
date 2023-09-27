@@ -5,6 +5,9 @@ import (
 	v1 "customer/api/helloworld/v1"
 	"customer/internal/conf"
 	"customer/internal/service"
+	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
+	"github.com/go-kratos/kratos/v2/middleware/selector"
+	jwt2 "github.com/golang-jwt/jwt/v4"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -12,12 +15,21 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, greeter *service.GreeterService,
+func NewGRPCServer(c *conf.Server, cAuth *conf.Auth, greeter *service.GreeterService,
 	customerService *service.CustomerService,
 	logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
+			// jwt 中间件
+			selector.Server(
+				jwt.Server(func(token *jwt2.Token) (interface{}, error) {
+					return []byte(cAuth.ApiKey), nil
+				}, jwt.WithSigningMethod(jwt2.SigningMethodHS256), jwt.WithClaims(func() jwt2.Claims {
+					return &jwt2.MapClaims{}
+				})),
+			).Match(NewWhiteListMatcher()).
+				Build(),
 		),
 	}
 	if c.Grpc.Network != "" {

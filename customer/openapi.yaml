@@ -59,6 +59,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /customer/logout:
+        post:
+            tags:
+                - Customer
+            description: 登出
+            operationId: Customer_Logout
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LogoutReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LogoutRes'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
     schemas:
         GetCustomerReply:
@@ -103,6 +128,17 @@ components:
                 tokenCreateAt:
                     type: string
                 tokenLifeTime:
+                    type: string
+        LogoutReq:
+            type: object
+            properties: {}
+        LogoutRes:
+            type: object
+            properties:
+                Code:
+                    type: integer
+                    format: int32
+                Message:
                     type: string
         Status:
             type: object
