@@ -83,14 +83,13 @@ func (d *customerData) MakeVerifyCode(ctx context.Context, length uint32, t veri
 	//client, err := api.NewClient(api.DefaultConfig())
 	//// new dis with consul client
 	//dis := consul.New(client)
-	endpoint := "discovery:///" + d.cr.Consul.Address
+	endpoint := "discovery:///verifyCode"
 	dis := d.rr.(*consul.Registry)
 	conn, err := grpc.DialInsecure(context.Background(), grpc.WithEndpoint(endpoint), grpc.WithDiscovery(dis))
 
 	if err != nil {
-		panic(err)
+		return "", errors.New("grpc init conn err")
 	}
-
 	defer conn.Close()
 	// 构建客户端
 	verifyCodeClient := verifyCode.NewVerifyCodeClient(conn)
