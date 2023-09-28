@@ -15,3 +15,7 @@ data:
     write_timeout: 0.2s
 auth:
   api_key: 90feaefb-6497-4843-b0c2-f5465e53e39b
+registry:
+  consul:
+    address: 127.0.0.1:8500
+    scheme: http

@@ -9,6 +9,7 @@ message Bootstrap {
   Server server = 1;
   Data data = 2;
   Auth auth = 3;
+  Registry registry = 4;
 }
 
 message Server {
@@ -43,4 +44,12 @@ message Data {
 
 message Auth {
   string api_key = 1;
+}
+
+message Registry {
+  message Consul {
+    string address = 1;
+    string scheme = 2;
+  }
+  Consul consul = 1;
 }
