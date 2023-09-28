@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
+	consulApi "github.com/hashicorp/consul/api"
 	"os"
 
 	"verifyCode/internal/conf"
@@ -44,6 +46,8 @@ func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
 			gs,
 			hs,
 		),
+		// with registrar
+		kratos.Registrar(initConsul()),
 	)
 }
 
@@ -84,4 +88,14 @@ func main() {
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
+}
+
+func initConsul() *consul.Registry {
+	// new consul client
+	client, err := consulApi.NewClient(consulApi.DefaultConfig())
+	if err != nil {
+		panic(err)
+	}
+	// new reg with consul client
+	return consul.New(client)
 }
