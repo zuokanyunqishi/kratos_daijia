@@ -95,7 +95,7 @@ func (d *customerData) MakeVerifyCode(ctx context.Context, length uint32, t veri
 	verifyCodeClient := verifyCode.NewVerifyCodeClient(conn)
 	code, err := verifyCodeClient.GetVerifyCode(ctx, &verifyCode.GetVerifyCodeRequest{
 		Length: length,
-		Type:   verifyCode.TYPE_DIGIT,
+		Type:   t,
 	})
 
 	if err != nil {
