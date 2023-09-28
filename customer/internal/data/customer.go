@@ -4,19 +4,22 @@ import (
 	"context"
 	"customer/api/verifyCode"
 	"customer/internal/biz"
+	"customer/internal/conf"
 	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/registry"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"github.com/hashicorp/consul/api"
 	"time"
 )
 
 type customerData struct {
 	data *Data
 	log  *log.Helper
+	rr   registry.Registrar
+	cr   *conf.Registry
 }
 
 func (d *customerData) DeleteToken(ctx context.Context, id int64) error {
@@ -66,19 +69,22 @@ func (d *customerData) QuickCreateCustomerByPhone(ctx context.Context, telephone
 	return customer, nil
 }
 
-func NewCustomerData(data *Data, logger log.Logger) biz.CustomerRepo {
+func NewCustomerData(data *Data, logger log.Logger, rr registry.Registrar, cr *conf.Registry) biz.CustomerRepo {
 	return &customerData{
 		data: data,
 		log:  log.NewHelper(logger),
+		rr:   rr,
+		cr:   cr,
 	}
 }
 
 func (d *customerData) MakeVerifyCode(ctx context.Context, length uint32, t verifyCode.TYPE) (string, error) {
 
-	client, err := api.NewClient(api.DefaultConfig())
-	// new dis with consul client
-	dis := consul.New(client)
-	endpoint := "discovery:///localhost:9000"
+	//client, err := api.NewClient(api.DefaultConfig())
+	//// new dis with consul client
+	//dis := consul.New(client)
+	endpoint := "discovery:///" + d.cr.Consul.Address
+	dis := d.rr.(*consul.Registry)
 	conn, err := grpc.DialInsecure(context.Background(), grpc.WithEndpoint(endpoint), grpc.WithDiscovery(dis))
 
 	if err != nil {

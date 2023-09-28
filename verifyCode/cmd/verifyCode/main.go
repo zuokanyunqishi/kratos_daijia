@@ -2,8 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
-	consulApi "github.com/hashicorp/consul/api"
+	"github.com/go-kratos/kratos/v2/registry"
 	"os"
 
 	"verifyCode/internal/conf"
@@ -36,7 +35,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
+func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server, rr registry.Registrar) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
@@ -48,7 +47,7 @@ func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
 			hs,
 		),
 		// with registrar
-		kratos.Registrar(initConsul()),
+		kratos.Registrar(rr),
 	)
 }
 
@@ -79,7 +78,7 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, logger)
+	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Registry, logger)
 	if err != nil {
 		panic(err)
 	}
@@ -89,14 +88,4 @@ func main() {
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
-}
-
-func initConsul() *consul.Registry {
-	// new consul client
-	client, err := consulApi.NewClient(consulApi.DefaultConfig())
-	if err != nil {
-		panic(err)
-	}
-	// new reg with consul client
-	return consul.New(client)
 }
