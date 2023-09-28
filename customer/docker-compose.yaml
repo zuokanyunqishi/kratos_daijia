@@ -1,4 +1,10 @@
 services:
+  consul:
+    image: consul:1.15.4
+    container_name: daijia_consul
+    ports:
+      - "8500:8500"
+    command: [ "consul", "agent", "-dev", "-client", "0.0.0.0" ]
   redis:
     image: redis
     container_name: daijia_customer_redis
@@ -17,3 +23,5 @@ services:
       - "3307:3306"
     volumes:
       - ./data/mysql:/var/lib/mysql
+
+
