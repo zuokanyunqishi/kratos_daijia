@@ -15,5 +15,6 @@ func NewMapServiceService() *MapServiceService {
 }
 
 func (s *MapServiceService) GetDrivingInfo(ctx context.Context, req *pb.GetDrivingInfoReq) (*pb.GetDrivingInfoResp, error) {
+
 	return &pb.GetDrivingInfoResp{}, nil
 }
