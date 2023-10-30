@@ -10,9 +10,9 @@ type MapInfo struct {
 	log  *log.Helper
 }
 
-func (m MapInfo) GetDrivingInfo(ctx context.Context, origin, destination string) {
+func (m MapInfo) GetDriverInfo(ctx context.Context, origin, destination string) {
 	//TODO implement me
-	panic("implement me")
+
 }
 
 func NewMapInfo(data *Data, log *log.Helper) *MapInfo {

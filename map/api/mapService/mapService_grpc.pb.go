@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MapService_GetDrivingInfo_FullMethodName = "/api.mapService.MapService/GetDrivingInfo"
+	MapService_GetDriverInfo_FullMethodName = "/api.mapService.MapService/GetDriverInfo"
 )
 
 // MapServiceClient is the client API for MapService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MapServiceClient interface {
-	GetDrivingInfo(ctx context.Context, in *GetDrivingInfoReq, opts ...grpc.CallOption) (*GetDrivingInfoResp, error)
+	GetDriverInfo(ctx context.Context, in *GetDriverInfoReq, opts ...grpc.CallOption) (*GetDriverInfoResp, error)
 }
 
 type mapServiceClient struct {
@@ -37,9 +37,9 @@ func NewMapServiceClient(cc grpc.ClientConnInterface) MapServiceClient {
 	return &mapServiceClient{cc}
 }
 
-func (c *mapServiceClient) GetDrivingInfo(ctx context.Context, in *GetDrivingInfoReq, opts ...grpc.CallOption) (*GetDrivingInfoResp, error) {
-	out := new(GetDrivingInfoResp)
-	err := c.cc.Invoke(ctx, MapService_GetDrivingInfo_FullMethodName, in, out, opts...)
+func (c *mapServiceClient) GetDriverInfo(ctx context.Context, in *GetDriverInfoReq, opts ...grpc.CallOption) (*GetDriverInfoResp, error) {
+	out := new(GetDriverInfoResp)
+	err := c.cc.Invoke(ctx, MapService_GetDriverInfo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (c *mapServiceClient) GetDrivingInfo(ctx context.Context, in *GetDrivingInf
 // All implementations must embed UnimplementedMapServiceServer
 // for forward compatibility
 type MapServiceServer interface {
-	GetDrivingInfo(context.Context, *GetDrivingInfoReq) (*GetDrivingInfoResp, error)
+	GetDriverInfo(context.Context, *GetDriverInfoReq) (*GetDriverInfoResp, error)
 	mustEmbedUnimplementedMapServiceServer()
 }
 
@@ -58,8 +58,8 @@ type MapServiceServer interface {
 type UnimplementedMapServiceServer struct {
 }
 
-func (UnimplementedMapServiceServer) GetDrivingInfo(context.Context, *GetDrivingInfoReq) (*GetDrivingInfoResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDrivingInfo not implemented")
+func (UnimplementedMapServiceServer) GetDriverInfo(context.Context, *GetDriverInfoReq) (*GetDriverInfoResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDriverInfo not implemented")
 }
 func (UnimplementedMapServiceServer) mustEmbedUnimplementedMapServiceServer() {}
 
@@ -74,20 +74,20 @@ func RegisterMapServiceServer(s grpc.ServiceRegistrar, srv MapServiceServer) {
 	s.RegisterService(&MapService_ServiceDesc, srv)
 }
 
-func _MapService_GetDrivingInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetDrivingInfoReq)
+func _MapService_GetDriverInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDriverInfoReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MapServiceServer).GetDrivingInfo(ctx, in)
+		return srv.(MapServiceServer).GetDriverInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MapService_GetDrivingInfo_FullMethodName,
+		FullMethod: MapService_GetDriverInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MapServiceServer).GetDrivingInfo(ctx, req.(*GetDrivingInfoReq))
+		return srv.(MapServiceServer).GetDriverInfo(ctx, req.(*GetDriverInfoReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -100,8 +100,8 @@ var MapService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MapServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetDrivingInfo",
-			Handler:    _MapService_GetDrivingInfo_Handler,
+			MethodName: "GetDriverInfo",
+			Handler:    _MapService_GetDriverInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

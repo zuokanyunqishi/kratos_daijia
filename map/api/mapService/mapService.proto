@@ -7,17 +7,16 @@ option java_multiple_files = true;
 option java_package = "api.mapService";
 
 service MapService {
-	rpc GetDrivingInfo (GetDrivingInfoReq) returns (GetDrivingInfoResp);
+	rpc GetDriverInfo (GetDriverInfoReq) returns (GetDriverInfoResp);
 }
 
-message GetDrivingInfoReq {
+message GetDriverInfoReq {
 	string origin = 1;
 	string destination = 2;
 }
-message GetDrivingInfoResp {
+message GetDriverInfoResp {
 	string origin = 1;
 	string destination = 2;
 	string distance = 3;
 	string duration = 4;
-
 }

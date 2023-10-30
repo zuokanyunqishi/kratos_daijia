@@ -2,19 +2,22 @@ package service
 
 import (
 	"context"
+	"map/internal/biz"
 
 	pb "map/api/mapService"
 )
 
 type MapServiceService struct {
 	pb.UnimplementedMapServiceServer
+	mapDriveBiz *biz.MapServiceBiz
 }
 
-func NewMapServiceService() *MapServiceService {
-	return &MapServiceService{}
+func NewMapServiceService(biz *biz.MapServiceBiz) *MapServiceService {
+	return &MapServiceService{mapDriveBiz: biz}
 }
 
-func (s *MapServiceService) GetDrivingInfo(ctx context.Context, req *pb.GetDrivingInfoReq) (*pb.GetDrivingInfoResp, error) {
+func (s *MapServiceService) GetDriverInfo(ctx context.Context, req *pb.GetDriverInfoReq) (*pb.GetDriverInfoResp, error) {
 
-	return &pb.GetDrivingInfoResp{}, nil
+	s.mapDriveBiz.GetDriverInfo(ctx, req.Origin, req.Destination)
+	return &pb.GetDriverInfoResp{}, nil
 }
