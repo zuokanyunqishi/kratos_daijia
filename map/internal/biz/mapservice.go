@@ -2,7 +2,7 @@ package biz
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"github.com/bytedance/sonic"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-resty/resty/v2"
@@ -21,30 +21,40 @@ func NewMapServiceBiz(logger log.Logger) *MapServiceBiz {
 	return &MapServiceBiz{log: log.NewHelper(logger)}
 }
 
-func (b *MapServiceBiz) GetDriverInfo(ctx context.Context, origin, destination string) {
+func (b *MapServiceBiz) GetDriverInfo(ctx context.Context, origin, destination string) (string, string, error) {
 
 	url := "https://restapi.amap.com/v3/direction/driving"
+	// 高德路径规划服务key
 	key := "key"
-	response, err := resty.New().R().SetQueryParams(map[string]string{
-		"origin":      origin,
-		"destination": destination,
-		"extensions":  "all",
-		"output":      "json",
-		"key":         key,
-	}).Get(url)
+	httpClient := resty.New()
+	httpClient.JSONUnmarshal = sonic.Unmarshal
+	httpClient.JSONMarshal = sonic.Marshal
+	httpClient.EnableTrace()
+
+	response, err := httpClient.R().
+		SetContext(ctx).
+		SetQueryParams(map[string]string{
+			"origin":      origin,
+			"destination": destination,
+			"extensions":  "all",
+			"output":      "json",
+			"key":         key,
+		}).Get(url)
+
 	if err != nil {
-		fmt.Println(err)
+		return "", "", err
 	}
 
-	var t Driver
-	_ = sonic.Unmarshal(response.Body(), &t)
-
-	fmt.Println(t.Route.Paths[0].Restriction)
-
+	var directionResp DirectionDrivingResp
+	_ = httpClient.JSONUnmarshal(response.Body(), &directionResp)
+	if directionResp.Status != "1" {
+		return "", "", errors.New(directionResp.Info)
+	}
+	return directionResp.Route.Paths[0].Distance, directionResp.Route.Paths[0].Duration, nil
 }
 
-// Driver ee
-type Driver struct {
+// DirectionDrivingResp 返回数据
+type DirectionDrivingResp struct {
 	Status   string `json:"status"`
 	Info     string `json:"info"`
 	Infocode string `json:"infocode"`
