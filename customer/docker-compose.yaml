@@ -20,7 +20,7 @@ services:
       MYSQL_ROOT_PASSWORD: 123456
 #      MYSQL_DATABASE: daijia
     command:
-      - --initfile /docker-entrypoint-initdb.d/init.sql
+      - --init-file /docker-entrypoint-initdb.d/init.sql
     ports:
       - "3307:3306"
     volumes:
