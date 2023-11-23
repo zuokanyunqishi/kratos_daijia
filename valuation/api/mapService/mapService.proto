@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package api.mapService;
+
+option go_package = "valuation/api/mapService;mapService";
+option java_multiple_files = true;
+
+service MapService {
+  rpc GetDriverInfo (GetDriverInfoReq) returns (GetDriverInfoResp);
+}
+
+message GetDriverInfoReq {
+  string origin = 1;
+  string destination = 2;
+}
+message GetDriverInfoResp {
+
+  string origin = 1;
+  string destination = 2;
+  string distance = 3;
+  string duration = 4;
+  int32 code = 5;
+  string message = 6;
+}
