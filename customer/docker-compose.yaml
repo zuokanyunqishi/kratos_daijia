@@ -4,7 +4,11 @@ services:
     container_name: daijia_consul
     ports:
       - "8500:8500"
-    command: [ "consul", "agent", "-dev", "-client", "0.0.0.0" ]
+    #command: [ "consul", "agent", "-dev", "-client", "0.0.0.0" ]
+    # 生产环境使用
+    command: [ "consul", "agent", "-server", "-bootstrap", "-client", "0.0.0.0", "-data-dir", "/consul/data","-ui", "-node","server1" ]
+    volumes:
+      - ./data/consul:/consul/data
   redis:
     image: redis
     container_name: daijia_customer_redis
