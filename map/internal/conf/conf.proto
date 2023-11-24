@@ -9,6 +9,7 @@ message Bootstrap {
   Server server = 1;
   Data data = 2;
   Registry registry = 3;
+  Amap amap = 4;
 }
 
 message Server {
@@ -50,3 +51,11 @@ message Data {
   Database database = 1;
   Redis redis = 2;
 }
+
+message  Amap {
+  message Direction {
+    string key = 1;
+  }
+  Direction direction = 1;
+}
+

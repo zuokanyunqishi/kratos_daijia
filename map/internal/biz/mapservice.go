@@ -6,6 +6,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-resty/resty/v2"
+	"map/internal/conf"
 )
 
 type MapDriverInfoRepo interface {
@@ -14,18 +15,19 @@ type MapDriverInfoRepo interface {
 
 type MapServiceBiz struct {
 	//mdi *MapDriverInfoRepo
-	log *log.Helper
+	log      *log.Helper
+	confAmap *conf.Amap
 }
 
-func NewMapServiceBiz(logger log.Logger) *MapServiceBiz {
-	return &MapServiceBiz{log: log.NewHelper(logger)}
+func NewMapServiceBiz(confAmap *conf.Amap, logger log.Logger) *MapServiceBiz {
+	return &MapServiceBiz{log: log.NewHelper(logger), confAmap: confAmap}
 }
 
 func (b *MapServiceBiz) GetDriverInfo(ctx context.Context, origin, destination string) (string, string, error) {
 
 	url := "https://restapi.amap.com/v3/direction/driving"
 	// 高德路径规划服务key
-	key := "key"
+	key := b.confAmap.GetDirection().GetKey()
 	httpClient := resty.New()
 	httpClient.JSONUnmarshal = sonic.Unmarshal
 	httpClient.JSONMarshal = sonic.Marshal

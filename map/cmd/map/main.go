@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	consulConfig "github.com/go-kratos/kratos/contrib/config/consul/v2"
 	"github.com/go-kratos/kratos/v2/registry"
+	consulApi "github.com/hashicorp/consul/api"
 	"os"
 
 	"map/internal/conf"
@@ -76,7 +78,25 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Registry, logger)
+	consulClient, err := consulApi.NewClient(&consulApi.Config{
+		Address: bc.Registry.Consul.Address,
+	})
+	if err != nil {
+		panic(err)
+	}
+	cs, err := consulConfig.New(consulClient, consulConfig.WithPath("map/"))
+	cc := config.New(config.WithSource(cs))
+
+	if err := cc.Load(); err != nil {
+		panic(err)
+	}
+	var cbc conf.Bootstrap
+	if err := cc.Scan(&cbc); err != nil {
+		panic(err)
+	}
+	bc.Amap = cbc.Amap
+
+	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Registry, bc.Amap, logger)
 	if err != nil {
 		panic(err)
 	}
