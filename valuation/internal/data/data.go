@@ -6,6 +6,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"gorm.io/gorm/logger"
 	"valuation/internal/biz"
 	"valuation/internal/conf"
@@ -56,7 +57,7 @@ func initRedis(c *conf.Data) *redis.Client {
 func initMysql(c *conf.Data) *gorm.DB {
 	//dsn := "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(c.Database.Source), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Error),
+		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
 		panic(err)
@@ -68,4 +69,47 @@ func migrateTable(db *gorm.DB) {
 	if err := db.AutoMigrate(&biz.PrizeRule{}); err != nil {
 		log.Error(err)
 	}
+
+	rules := []biz.PrizeRule{
+		{
+			Model: gorm.Model{
+				ID: 1,
+			},
+			PrizeRuleWork: biz.PrizeRuleWork{
+				CityID:      1,
+				StartFree:   300,
+				DistanceFee: 35,
+				DurationFee: 10,
+				StartAt:     7,
+				EndAt:       23,
+			},
+		},
+		{
+			Model: gorm.Model{
+				ID: 2,
+			},
+			PrizeRuleWork: biz.PrizeRuleWork{
+				CityID:      2,
+				StartFree:   350,
+				DistanceFee: 35,
+				DurationFee: 10,
+				StartAt:     23,
+				EndAt:       24,
+			},
+		},
+		{
+			Model: gorm.Model{
+				ID: 3,
+			},
+			PrizeRuleWork: biz.PrizeRuleWork{
+				CityID:      3,
+				StartFree:   400,
+				DistanceFee: 35,
+				DurationFee: 10,
+				StartAt:     0,
+				EndAt:       7,
+			},
+		},
+	}
+	db.Clauses(clause.OnConflict{DoNothing: true}).Create(rules)
 }
