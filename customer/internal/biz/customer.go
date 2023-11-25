@@ -2,12 +2,16 @@ package biz
 
 import (
 	"context"
+	"customer/api/valuation"
 	"customer/api/verifyCode"
 	"customer/internal/conf"
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/registry"
+	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
 	"time"
@@ -50,11 +54,12 @@ type CustomerUsecase struct {
 	repo    CustomerRepo
 	log     *log.Helper
 	cnfAuth *conf.Auth
+	rr      registry.Registrar
 }
 
 // NewCustomerUsecase NewGreeterUsecase new a Customer usecase.
-func NewCustomerUsecase(config *conf.Auth, repo CustomerRepo, logger log.Logger) *CustomerUsecase {
-	return &CustomerUsecase{cnfAuth: config, repo: repo, log: log.NewHelper(logger)}
+func NewCustomerUsecase(config *conf.Auth, repo CustomerRepo, rr registry.Registrar, logger log.Logger) *CustomerUsecase {
+	return &CustomerUsecase{cnfAuth: config, repo: repo, log: log.NewHelper(logger), rr: rr}
 }
 
 func (u *CustomerUsecase) CachePhoneCode(ctx context.Context, phone, code string, expireTime int64) error {
@@ -97,4 +102,27 @@ func (u *CustomerUsecase) GenerateTokenAndSave(ctx context.Context, customer *Cu
 	}
 
 	return signedToken, nil
+}
+
+func (u *CustomerUsecase) ValuationEstimatePrice(ctx context.Context, origin, destination string) (int64, error) {
+	endpoint := "discovery:///valuation"
+	dis := u.rr.(*consul.Registry)
+	conn, err := grpc.DialInsecure(ctx, grpc.WithEndpoint(endpoint), grpc.WithDiscovery(dis))
+
+	if err != nil {
+		return 0, errors.New("grpc init conn err")
+	}
+	defer conn.Close()
+
+	client := valuation.NewValuationClient(conn)
+	priceInfo, err := client.GetEstimatePrice(ctx, &valuation.GetEstimatePriceRequest{
+
+		Origin:      origin,
+		Destination: destination,
+	})
+
+	if err != nil {
+		return 0, errors.New("grpc get price err")
+	}
+	return priceInfo.Price, nil
 }

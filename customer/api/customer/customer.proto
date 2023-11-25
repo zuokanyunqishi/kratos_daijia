@@ -32,7 +32,26 @@ service Customer {
       body:"*";
     };
   }
+
+  rpc EstimatePrice (GetEstimatePriceRequest) returns (GetEstimatePriceReply){
+    option (google.api.http) = {
+      get :"/customer/estimate-price/{origin}/{destination}";
+    };
+  }
 }
+
+
+message GetEstimatePriceRequest {
+  string origin = 1;
+  string destination = 2;
+}
+message GetEstimatePriceReply {
+  string origin = 1;
+  string destination = 2;
+  int64 price = 3;
+}
+
+
 message LogoutReq {
 
 }

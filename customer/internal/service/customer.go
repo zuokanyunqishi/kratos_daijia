@@ -4,8 +4,10 @@ import (
 	"context"
 	"customer/api/verifyCode"
 	"customer/internal/biz"
+	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	jwt2 "github.com/golang-jwt/jwt/v4"
+	"net/http"
 	"regexp"
 	"strconv"
 	"time"
@@ -131,4 +133,18 @@ func (s *CustomerService) Logout(ctx context.Context, req *pb.LogoutReq) (*pb.Lo
 
 func (s *CustomerService) GetTokenById(ctx context.Context, id int64) (string, error) {
 	return s.cus.GetRepo().GetTokenById(ctx, id)
+}
+
+func (s *CustomerService) EstimatePrice(ctx context.Context, req *pb.GetEstimatePriceRequest) (*pb.GetEstimatePriceReply, error) {
+
+	price, err := s.cus.ValuationEstimatePrice(ctx, req.Origin, req.Destination)
+	if err != nil {
+		return &pb.GetEstimatePriceReply{}, errors.New(http.StatusBadRequest, "Get price err", "获取价格失败")
+	}
+	return &pb.GetEstimatePriceReply{
+		Price:       price,
+		Destination: req.Destination,
+		Origin:      req.Origin,
+	}, nil
+
 }
