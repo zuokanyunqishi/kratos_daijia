@@ -45,5 +45,5 @@ services:
       - "14269:14269"
       - "9411:9411"
     environment:
-      COLLECTOR ZIPKIN H0ST PORT:9411
-      COLLECTOROTLPENABLED:true
+      COLLECTOR ZIPKIN H0ST PORT: 9411
+      COLLECTOROTLPENABLED: true
