@@ -17,3 +17,13 @@ registry:
   consul:
     address: 192.168.65.128:8500
     scheme: http
+trace:
+  jaeger:
+    agent: 192.168.65.128:6831
+    sampler:
+      type: const
+      param: 1
+    reporter:
+      queue_size: 1000
+      buffer_flush_interval: 100ms
+      log_spans: true
