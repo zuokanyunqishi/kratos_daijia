@@ -84,6 +84,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	// path  map/amap.yaml
+	// amap:
+	// direction:
+	//        key: xxx
 	cs, err := consulConfig.New(consulClient, consulConfig.WithPath("map/"))
 	cc := config.New(config.WithSource(cs))
 
