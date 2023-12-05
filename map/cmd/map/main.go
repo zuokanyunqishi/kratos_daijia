@@ -5,6 +5,7 @@ import (
 	consulConfig "github.com/go-kratos/kratos/contrib/config/consul/v2"
 	"github.com/go-kratos/kratos/v2/registry"
 	consulApi "github.com/hashicorp/consul/api"
+	"map/internal/boot"
 	"os"
 
 	"map/internal/conf"
@@ -99,6 +100,9 @@ func main() {
 		panic(err)
 	}
 	bc.Amap = cbc.Amap
+
+	// trace
+	boot.NewTrace(&bc).Run(Name, Version, id)
 
 	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Registry, bc.Amap, logger)
 	if err != nil {

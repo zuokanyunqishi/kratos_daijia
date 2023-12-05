@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/go-kratos/kratos/v2/registry"
 	"os"
+	"valuation/internal/boot"
 
 	"valuation/internal/conf"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
-
 	_ "go.uber.org/automaxprocs"
 )
 
@@ -75,6 +75,9 @@ func main() {
 	if err := c.Scan(&bc); err != nil {
 		panic(err)
 	}
+
+	// 注册链路追踪
+	boot.NewTrace(&bc).Run(Name, Version, id)
 
 	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Registry, logger)
 	if err != nil {

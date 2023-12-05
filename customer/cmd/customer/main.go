@@ -1,6 +1,7 @@
 package main
 
 import (
+	"customer/internal/boot"
 	"flag"
 	"github.com/go-kratos/kratos/v2/registry"
 	"os"
@@ -76,6 +77,8 @@ func main() {
 		panic(err)
 	}
 
+	// init trace
+	boot.NewTrace(&bc).Run(Name, Version, id)
 	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Auth, bc.Registry, logger)
 	if err != nil {
 		panic(err)

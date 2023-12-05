@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/registry"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/golang-jwt/jwt/v4"
@@ -107,7 +108,8 @@ func (u *CustomerUsecase) GenerateTokenAndSave(ctx context.Context, customer *Cu
 func (u *CustomerUsecase) ValuationEstimatePrice(ctx context.Context, origin, destination string) (int64, error) {
 	endpoint := "discovery:///valuation"
 	dis := u.rr.(*consul.Registry)
-	conn, err := grpc.DialInsecure(ctx, grpc.WithEndpoint(endpoint), grpc.WithDiscovery(dis))
+	conn, err := grpc.DialInsecure(ctx,
+		grpc.WithEndpoint(endpoint), grpc.WithDiscovery(dis), grpc.WithMiddleware(tracing.Client()))
 
 	if err != nil {
 		return 0, errors.New("grpc init conn err")

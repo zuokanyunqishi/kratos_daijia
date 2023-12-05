@@ -6,6 +6,8 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-resty/resty/v2"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 	"map/internal/conf"
 )
 
@@ -24,6 +26,9 @@ func NewMapServiceBiz(confAmap *conf.Amap, logger log.Logger) *MapServiceBiz {
 }
 
 func (b *MapServiceBiz) GetDriverInfo(ctx context.Context, origin, destination string) (string, string, error) {
+
+	ctx, span := otel.Tracer("biz").Start(ctx, "GetDriverInfo", trace.WithSpanKind(trace.SpanKindProducer))
+	defer span.End()
 
 	url := "https://restapi.amap.com/v3/direction/driving"
 	// 高德路径规划服务key

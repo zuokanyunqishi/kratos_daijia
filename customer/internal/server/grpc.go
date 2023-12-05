@@ -10,6 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/selector"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	jwt2 "github.com/golang-jwt/jwt/v4"
 )
@@ -21,6 +22,8 @@ func NewGRPCServer(c *conf.Server, cAuth *conf.Auth, greeter *service.GreeterSer
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
+			// tracing
+			tracing.Server(),
 			// jwt 中间件
 			selector.Server(
 				jwt.Server(func(token *jwt2.Token) (interface{}, error) {

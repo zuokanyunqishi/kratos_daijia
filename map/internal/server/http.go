@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	v1 "map/api/helloworld/v1"
 	"map/internal/conf"
 	"map/internal/service"
@@ -15,6 +16,7 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
+			tracing.Server(),
 		),
 	}
 	if c.Http.Network != "" {

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	v1 "verifyCode/api/helloworld/v1"
 	verifyCode "verifyCode/api/verifyCode"
 	"verifyCode/internal/conf"
@@ -18,6 +19,7 @@ func NewGRPCServer(c *conf.Server, greeter *service.GreeterService,
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
+			tracing.Server(),
 		),
 	}
 	if c.Grpc.Network != "" {

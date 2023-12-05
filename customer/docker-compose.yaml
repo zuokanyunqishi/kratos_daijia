@@ -46,4 +46,4 @@ services:
       - "9411:9411"
     environment:
       COLLECT0R_ZIPKIN_H0ST_P0RT: 9411
-      COLLECTOR_OTLP_ENABLED: true
+      COLLECTOR_OTLP_ENABLED: "true"
