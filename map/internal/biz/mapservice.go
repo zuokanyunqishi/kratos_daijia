@@ -27,7 +27,7 @@ func NewMapServiceBiz(confAmap *conf.Amap, logger log.Logger) *MapServiceBiz {
 
 func (b *MapServiceBiz) GetDriverInfo(ctx context.Context, origin, destination string) (string, string, error) {
 
-	ctx, span := otel.Tracer("biz").Start(ctx, "GetDriverInfo", trace.WithSpanKind(trace.SpanKindProducer))
+	ctx, span := otel.Tracer("biz/MapService").Start(ctx, "GetDriverInfo", trace.WithSpanKind(trace.SpanKindProducer))
 	defer span.End()
 
 	url := "https://restapi.amap.com/v3/direction/driving"

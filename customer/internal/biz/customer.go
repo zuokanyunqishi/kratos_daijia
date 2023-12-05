@@ -14,6 +14,7 @@ import (
 	"github.com/go-kratos/kratos/v2/registry"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/golang-jwt/jwt/v4"
+	"go.opentelemetry.io/otel"
 	"gorm.io/gorm"
 	"time"
 )
@@ -106,6 +107,9 @@ func (u *CustomerUsecase) GenerateTokenAndSave(ctx context.Context, customer *Cu
 }
 
 func (u *CustomerUsecase) ValuationEstimatePrice(ctx context.Context, origin, destination string) (int64, error) {
+
+	ctx, span := otel.Tracer("biz/customer").Start(ctx, "ValuationEstimatePrice")
+	defer span.End()
 	endpoint := "discovery:///valuation"
 	dis := u.rr.(*consul.Registry)
 	conn, err := grpc.DialInsecure(ctx,

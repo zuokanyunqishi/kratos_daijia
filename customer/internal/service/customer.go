@@ -5,8 +5,11 @@ import (
 	"customer/api/verifyCode"
 	"customer/internal/biz"
 	"github.com/go-kratos/kratos/v2/errors"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	jwt2 "github.com/golang-jwt/jwt/v4"
+	"go.opentelemetry.io/otel"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -18,20 +21,21 @@ import (
 type CustomerService struct {
 	pb.UnimplementedCustomerServer
 	cus *biz.CustomerUsecase
+	log *log.Helper
 }
 
 const TokenLifeTime = 60 * 60 * 24 * 30 * 2
 
-func NewCustomerService(cus *biz.CustomerUsecase) *CustomerService {
+func NewCustomerService(cus *biz.CustomerUsecase, logger log.Logger) *CustomerService {
 	return &CustomerService{
 		cus: cus,
+		log: log.NewHelper(logger),
 	}
 }
 
 func (s *CustomerService) GetCustomer(ctx context.Context, req *pb.GetCustomerRequest) (*pb.GetCustomerReply, error) {
 	//telephone := req.GetTelephone()
 	//
-
 	pattern := "^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\\d{8}$"
 	compile := regexp.MustCompile(pattern)
 	if !compile.MatchString(req.Telephone) {
@@ -137,6 +141,10 @@ func (s *CustomerService) GetTokenById(ctx context.Context, id int64) (string, e
 
 func (s *CustomerService) EstimatePrice(ctx context.Context, req *pb.GetEstimatePriceRequest) (*pb.GetEstimatePriceReply, error) {
 
+	ctx, span := otel.Tracer("service/customer").Start(ctx, "EstimatePrice")
+	defer span.End()
+
+	s.log.WithContext(ctx).Info(tracing.TraceID())
 	price, err := s.cus.ValuationEstimatePrice(ctx, req.Origin, req.Destination)
 	if err != nil {
 		return &pb.GetEstimatePriceReply{}, errors.New(http.StatusBadRequest, "Get price err", "获取价格失败")
