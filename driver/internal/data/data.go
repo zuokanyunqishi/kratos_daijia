@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"driver/internal/biz"
 	"driver/internal/conf"
 	"fmt"
 	"github.com/redis/go-redis/extra/redisotel/v9"
@@ -35,7 +36,17 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
 	}
+
+	migrateTable(data.mysql)
 	return data, cleanup, nil
+}
+
+func migrateTable(db *gorm.DB) {
+	if err := db.AutoMigrate(
+		&biz.Driver{},
+	); err != nil {
+		panic(err)
+	}
 }
 
 func initRedis(c *conf.Data) *redis.Client {
@@ -69,6 +80,5 @@ func initMysql(c *conf.Data) *gorm.DB {
 
 	// gorm 接入 open tracing
 	db.Use(tracing.NewPlugin(tracing.WithoutMetrics()))
-	return db
 	return db
 }
