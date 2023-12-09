@@ -4,6 +4,7 @@ import (
 	"context"
 	"driver/internal/conf"
 	"fmt"
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -19,7 +20,7 @@ var ProviderSet = wire.NewSet(NewData, NewGreeterRepo, NewVerifyCode)
 // Data .
 type Data struct {
 	// TODO wrapped database client
-	redis *redis.Client
+	redis redis.UniversalClient
 	mysql *gorm.DB
 }
 
@@ -43,6 +44,15 @@ func initRedis(c *conf.Data) *redis.Client {
 	status := client.Ping(context.Background())
 	if status.Err() != nil {
 		panic(status.Err())
+	}
+	// Enable tracing instrumentation.
+	if err := redisotel.InstrumentTracing(client); err != nil {
+		panic(err)
+	}
+
+	// Enable metrics instrumentation.
+	if err := redisotel.InstrumentMetrics(client); err != nil {
+		panic(err)
 	}
 	return client
 }

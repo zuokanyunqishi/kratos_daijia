@@ -79,7 +79,7 @@ func main() {
 		panic(err)
 	}
 
-	boot.NewTrace(&bc)
+	boot.NewTrace(&bc).Run(Name, Version, id)
 	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Registry, logger)
 	if err != nil {
 		panic(err)

@@ -2,10 +2,8 @@ package service
 
 import (
 	"context"
-	"driver/internal/biz"
-	"fmt"
-
 	pb "driver/api/driver"
+	"driver/internal/biz"
 )
 
 type DriverService struct {
@@ -18,7 +16,6 @@ func NewDriverService(driverBiz *biz.DriverBiz) *DriverService {
 }
 
 func (s *DriverService) GetVerifyCode(ctx context.Context, req *pb.GetVerifyCodeReq) (*pb.GetVerifyCoderRes, error) {
-	fmt.Println(req.Telephone)
 	code, err := s.driverBiz.GetVerifyCode(ctx, req.Telephone, 600)
 	if err != nil {
 		return nil, err

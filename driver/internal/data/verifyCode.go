@@ -35,6 +35,9 @@ func (v *VerifyCode) GetVerifyCode(ctx context.Context, phone string, service st
 	if err != nil {
 		return "", err
 	}
+
+	ctx, span = otel.Tracer("data:driver:redis").Start(ctx, "GetVerifyCode")
+	defer span.End()
 	statusCmd := v.redis.Set(ctx, service+"verifyCode:"+phone, code, time.Second*time.Duration(lifeTime))
 	if err = statusCmd.Err(); err != nil {
 		return "", err
