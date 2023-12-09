@@ -46,7 +46,7 @@ func (v *VerifyCode) GetVerifyCode(ctx context.Context, phone string, service st
 
 }
 
-func (v *VerifyCode) ValidateVerifyCode(ctx context.Context, s string, s2 string) error {
+func (v *VerifyCode) ValidateVerifyCode(ctx context.Context, phone string, service string) error {
 	//TODO implement me
 	return nil
 }
