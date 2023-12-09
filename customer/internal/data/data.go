@@ -5,10 +5,12 @@ import (
 	"customer/internal/biz"
 	"customer/internal/conf"
 	"fmt"
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/plugin/opentelemetry/tracing"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
@@ -52,6 +54,15 @@ func initRedis(c *conf.Data) *redis.Client {
 	if status.Err() != nil {
 		panic(status.Err())
 	}
+	// Enable tracing
+	if err := redisotel.InstrumentTracing(client); err != nil {
+		panic(err)
+	}
+
+	// Enable metrics instrumentation.
+	//if err := redisotel.InstrumentMetrics(client); err != nil {
+	//	panic(err)
+	//}
 	return client
 }
 
@@ -63,6 +74,8 @@ func initMysql(c *conf.Data) *gorm.DB {
 	if err != nil {
 		panic(err)
 	}
+	// gorm 接入 open tracing
+	db.Use(tracing.NewPlugin(tracing.WithoutMetrics()))
 	return db
 }
 

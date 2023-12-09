@@ -3,11 +3,13 @@ package data
 import (
 	"context"
 	"fmt"
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/logger"
+	"gorm.io/plugin/opentelemetry/tracing"
 	"valuation/internal/biz"
 	"valuation/internal/conf"
 
@@ -51,17 +53,28 @@ func initRedis(c *conf.Data) *redis.Client {
 	if status.Err() != nil {
 		panic(status.Err())
 	}
+	// Enable tracing
+	if err := redisotel.InstrumentTracing(client); err != nil {
+		panic(err)
+	}
+
+	// Enable metrics instrumentation.
+	//if err := redisotel.InstrumentMetrics(client); err != nil {
+	//	panic(err)
+	//}
 	return client
 }
 
 func initMysql(c *conf.Data) *gorm.DB {
 	//dsn := "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(c.Database.Source), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logger.Error),
 	})
 	if err != nil {
 		panic(err)
 	}
+	// gorm 接入 open tracing
+	db.Use(tracing.NewPlugin(tracing.WithoutMetrics()))
 	return db
 }
 
