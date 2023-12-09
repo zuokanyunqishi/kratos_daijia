@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package api.driver;
+
+import "google/api/annotations.proto";
+option go_package = "driver/api/driver;driver";
+option java_multiple_files = true;
+option java_package = "api.driver";
+
+service Driver {
+	rpc GetVerifyCode (GetVerifyCodeReq) returns (GetVerifyCoderRes) {
+		option (google.api.http) = {
+			get :"/driver/get-verify-code/{Telephone}"
+		};
+	};
+}
+
+message GetVerifyCodeReq {
+	string Telephone = 1;
+}
+
+message GetVerifyCoderRes {
+	int32 Code = 1;
+	string Message = 2;
+	string VerifyCode = 3;
+	int64 VerifyCodeTime = 4;
+	int64 VerifyCodeLife = 5;
+}

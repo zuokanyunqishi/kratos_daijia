@@ -1,6 +1,7 @@
 package server
 
 import (
+	"driver/api/driver"
 	v1 "driver/api/helloworld/v1"
 	"driver/internal/conf"
 	"driver/internal/service"
@@ -12,7 +13,7 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, driverService *service.DriverService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
@@ -30,5 +31,7 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 	}
 	srv := http.NewServer(opts...)
 	v1.RegisterGreeterHTTPServer(srv, greeter)
+	driver.RegisterDriverHTTPServer(srv, driverService)
+
 	return srv
 }

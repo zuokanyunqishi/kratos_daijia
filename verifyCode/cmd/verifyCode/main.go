@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/go-kratos/kratos/v2/registry"
 	"os"
+	"verifyCode/internal/boot"
 
 	"verifyCode/internal/conf"
 
@@ -78,6 +79,7 @@ func main() {
 		panic(err)
 	}
 
+	boot.NewTrace(&bc)
 	app, cleanup, err := wireApp(bc.Server, bc.Data, bc.Registry, logger)
 	if err != nil {
 		panic(err)
