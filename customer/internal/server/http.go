@@ -39,6 +39,12 @@ func NewHTTPServer(c *conf.Server, cAuth *conf.Auth, greeter *service.GreeterSer
 			recovery.Recovery(),
 			tracing.Server(),
 			logging.Server(logger),
+			// 跨域
+			selector.Server(middlewares.Cors()).
+				Match(func(ctx context.Context, operation string) bool {
+					return true
+
+				}).Build(),
 			// jwt 中间件验证
 			selector.Server(
 				jwt.Server(func(token *jwt2.Token) (interface{}, error) {

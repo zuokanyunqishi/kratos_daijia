@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/registry"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"time"
@@ -85,7 +86,10 @@ func (d *customerData) MakeVerifyCode(ctx context.Context, length uint32, t veri
 	//dis := consul.New(client)
 	endpoint := "discovery:///verifyCode"
 	dis := d.rr.(*consul.Registry)
-	conn, err := grpc.DialInsecure(context.Background(), grpc.WithEndpoint(endpoint), grpc.WithDiscovery(dis))
+	conn, err := grpc.DialInsecure(context.Background(),
+		grpc.WithEndpoint(endpoint),
+		grpc.WithDiscovery(dis),
+		grpc.WithMiddleware(tracing.Client()))
 
 	if err != nil {
 		return "", errors.New("grpc init conn err")

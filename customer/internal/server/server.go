@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"customer/internal/conf"
 	consul "github.com/go-kratos/kratos/contrib/registry/consul/v2"
 	"github.com/go-kratos/kratos/v2/registry"
@@ -20,5 +21,7 @@ func NewRegistrar(conf *conf.Registry) registry.Registrar {
 		panic(err)
 	}
 	r := consul.New(cli)
+	r.Watch(context.Background(), "verifyCode")
+	r.Watch(context.Background(), "verifyCode")
 	return r
 }
