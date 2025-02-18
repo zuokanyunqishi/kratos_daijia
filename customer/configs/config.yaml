@@ -8,19 +8,19 @@ server:
 data:
   database:
     driver: mysql
-    source: root:123456@tcp(192.168.65.128:3307)/daijia?charset=utf8mb4&parseTime=True&loc=Local
+    source: root:123456@tcp(192.168.0.185:3307)/daijia?charset=utf8mb4&parseTime=True&loc=Local
   redis:
-    addr: 192.168.65.128:6391
+    addr: 192.168.0.185:6391
     read_timeout: 0.2s
     write_timeout: 0.2s
 auth:
   api_key: 90feaefb-6497-4843-b0c2-f5465e53e39b
 registry:
   consul:
-    address: 192.168.65.128:8500
+    address: 192.168.0.185:8500
     scheme: http
 trace:
   enable: true
-  endpoint: http://192.168.65.128:14268/api/traces
+  endpoint: http://192.168.0.185:14268/api/traces
   exporter: jaeger
   token:

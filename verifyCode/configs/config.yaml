@@ -8,17 +8,17 @@ server:
 data:
   database:
     driver: mysql
-    source: root:root@tcp(192.168.65.128:3306)/test
+    source: root:root@tcp(192.168.0.185:3306)/test
   redis:
     addr: 127.0.0.1:6379
     read_timeout: 0.2s
     write_timeout: 0.2s
 registry:
   consul:
-    address: 192.168.65.128:8500
+    address: 192.168.0.185:8500
     scheme: http
 trace:
   enable: true
-  endpoint: http://192.168.65.128:14268/api/traces
+  endpoint: http://192.168.0.185:14268/api/traces
   exporter: jaeger
   token:
