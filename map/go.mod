@@ -3,7 +3,7 @@ module map
 go 1.19
 
 require (
-	github.com/bytedance/sonic v1.10.2
+	github.com/bytedance/sonic v1.12.8
 	github.com/go-kratos/kratos/contrib/config/consul/v2 v2.0.0-20231122041305-e84cddeabddb
 	github.com/go-kratos/kratos/contrib/registry/consul/v2 v2.0.0-20231122041305-e84cddeabddb
 	github.com/go-kratos/kratos/v2 v2.7.1
