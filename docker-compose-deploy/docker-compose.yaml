@@ -1,14 +1,4 @@
 services:
-  #  consul:
-  #    image: consul:1.15.4
-  #    container_name: daijia_consul
-  #    ports:
-  #      - "8500:8500"
-  #    #command: [ "consul", "agent", "-dev", "-client", "0.0.0.0" ]
-  #    # 生产环境使用
-  #    command: [ "consul", "agent", "-server", "-bootstrap", "-client", "0.0.0.0", "-data-dir", "/consul/data","-ui", "-node","server1" ]
-  #    volumes:
-  #      - ./data/consul:/consul/data
   consul:
     image: hashicorp/consul
     container_name: daijia_consul
@@ -96,7 +86,21 @@ services:
     environment:
       COLLECTOR_ZIPKIN_HOST_PORT: 9411
       COLLECTOR_OTLP_ENABLED: "true"
-
+  init-data:
+    image: hashicorp/consul
+    volumes:
+      - ./config:/config  # 挂载本地配置文件目录
+    command:
+      - "sh"
+      - "-c"
+      - " consul kv put -http-addr=http://consul:8500 map/amap.yaml @/config/amap.yaml"
+    depends_on:
+      - consul
+      - consul1
+      - consul2
+      - consul3
+    networks:
+      consul-network:
 networks:
   consul-network:
     driver: bridge
