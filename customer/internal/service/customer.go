@@ -63,6 +63,7 @@ func (s *CustomerService) GetCustomer(ctx context.Context, req *pb.GetCustomerRe
 		VerifyCode:     code,
 		VerifyCodeTime: time.Now().Unix(),
 		VerifyCodeLife: 60,
+		Telephone:      req.Telephone,
 	}, nil
 }
 
@@ -104,6 +105,7 @@ func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.Logi
 		Token:         token,
 		TokenCreateAt: time.Now().Unix(),
 		TokenLifeTime: TokenLifeTime,
+		Telephone:     customer.Telephone,
 	}, nil
 }
 

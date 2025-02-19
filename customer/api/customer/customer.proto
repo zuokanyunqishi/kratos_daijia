@@ -71,6 +71,7 @@ message LoginRes{
   string token = 3;
   int64 token_create_at = 4;
   int64  token_life_time = 5;
+  string telephone = 6;
 }
 
 //message CreateCustomerRequest {}
@@ -91,6 +92,7 @@ message GetCustomerReply {
   string verifyCode = 3;
   int64 verifyCodeTime = 4;
   int64 verifyCodeLife = 5;
+  string telephone = 6;
 }
 
 //message ListCustomerRequest {}
