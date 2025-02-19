@@ -27,26 +27,26 @@ services:
         condition: service_healthy
     command: "agent -server -data-dir=/consul/data -client=0.0.0.0 -join=consul"
 
-  consul2:
-    image: hashicorp/consul
-    container_name: daijia_consul2
-    hostname: consul2
-    networks:
-      - consul-network
-    depends_on:
-      consul:
-        condition: service_healthy
-    command: "agent -server -data-dir=/consul/data -client=0.0.0.0 -join=consul"
-  consul3:
-    image: hashicorp/consul
-    container_name: daijia_consul3
-    hostname: consul3
-    networks:
-      - consul-network
-    depends_on:
-      consul:
-        condition: service_healthy
-    command: "agent -server -data-dir=/consul/data -client=0.0.0.0 -join=consul"
+#  consul2:
+#    image: hashicorp/consul
+#    container_name: daijia_consul2
+#    hostname: consul2
+#    networks:
+#      - consul-network
+#    depends_on:
+#      consul:
+#        condition: service_healthy
+#    command: "agent -server -data-dir=/consul/data -client=0.0.0.0 -join=consul"
+#  consul3:
+#    image: hashicorp/consul
+#    container_name: daijia_consul3
+#    hostname: consul3
+#    networks:
+#      - consul-network
+#    depends_on:
+#      consul:
+#        condition: service_healthy
+#    command: "agent -server -data-dir=/consul/data -client=0.0.0.0 -join=consul"
 
   redis:
     image: redis
@@ -62,12 +62,17 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: daijia
-    command: --init-file /docker-entrypoint-initdb.d/init.sql
+      TZ: Asia/Shanghai  # 设置容器时区
+    command:
+        - mysqld
+        - --init-file=/docker-entrypoint-initdb.d/init.sql
+        - --default-time-zone=+8:00  # 强制 MySQL 时区
     ports:
       - "3307:3306"
     volumes:
       - ./data/mysql:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./daijia_mysql.cnf:/etc/mysql/conf.d/daijia_mysql.cnf  # 挂载自定义配置
 
   jaeger:
     image: jaegertracing/jaeger
@@ -97,8 +102,8 @@ services:
     depends_on:
       - consul
       - consul1
-      - consul2
-      - consul3
+#      - consul2
+#      - consul3
     networks:
       consul-network:
 networks:
