@@ -13,7 +13,6 @@ require (
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
 	github.com/redis/go-redis/v9 v9.2.0
 	go.opentelemetry.io/otel v1.32.0
-	go.opentelemetry.io/otel/exporters/jaeger v1.17.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.21.0
 	go.opentelemetry.io/otel/sdk v1.32.0
 	go.uber.org/automaxprocs v1.5.1
@@ -24,6 +23,8 @@ require (
 	gorm.io/gorm v1.25.4
 	gorm.io/plugin/opentelemetry v0.1.4
 )
+
+require go.opentelemetry.io/otel/exporters/jaeger v1.17.0
 
 require (
 	github.com/armon/go-metrics v0.4.1 // indirect
@@ -52,6 +53,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.0.5 // indirect
+	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	go.opentelemetry.io/otel/metric v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29 // indirect
