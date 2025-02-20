@@ -72,7 +72,7 @@ services:
     volumes:
       - ./data/mysql:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./daijia_mysql.cnf:/etc/mysql/conf.d/daijia_mysql.cnf  # 挂载自定义配置
+      - ./config/daijia_mysql.cnf:/etc/mysql/conf.d/daijia_mysql.cnf  # 挂载自定义配置
 
   jaeger:
     image: jaegertracing/jaeger

@@ -2,4 +2,4 @@
 !.gitignore
 
 !amap.yaml_demo
-!daijia_mysql.conf
+!daijia_mysql.cnf
