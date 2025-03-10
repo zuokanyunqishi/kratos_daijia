@@ -1,0 +1,7 @@
+[mysqld]
+innodb_flush_method = O_DIRECT
+innodb_use_native_aio = 0
+
+# 可选补充配置（针对容器环境优化）
+# skip-name-resolve       # 禁用反向DNS解析
+# max_connections=500     # 根据需求调整

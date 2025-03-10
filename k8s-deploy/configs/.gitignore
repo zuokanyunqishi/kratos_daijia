@@ -1,6 +1,6 @@
 *
 !.gitignore
 
-!configs/amap.yaml_demo
-!configs/daijia_mysql.cnf
+!amap.yaml_demo
+!daijia_mysql.cnf
 !init.sql
