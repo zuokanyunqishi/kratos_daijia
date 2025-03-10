@@ -25,7 +25,7 @@ services:
     depends_on:
       consul:
         condition: service_healthy
-    command: "agent -server -data-dir=/consul/data -client=0.0.0.0 -join=consul"
+    command: "agent -server -data-dir=/consul/data -client=0.0.0.0 -retry-join=consul"
 
 #  consul2:
 #    image: hashicorp/consul

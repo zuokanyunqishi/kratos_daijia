@@ -1,0 +1,400 @@
+# ========== Consul 集群配置（StatefulSet）==========
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: consul
+spec:
+  serviceName: consul
+  replicas: 2
+  selector:
+    matchLabels:
+      app: consul
+  template:
+    metadata:
+      labels:
+        app: consul
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: consul
+          image: hashicorp/consul:1.15
+          args:
+            - "agent"
+            - "-server"
+            - "-bootstrap-expect=2"
+            - "-data-dir=/consul/data"
+            - "-client=0.0.0.0"
+            - "-ui"
+            - "-retry-join=consul-0.consul.default.svc.cluster.local"
+            - "-retry-join=consul-1.consul.default.svc.cluster.local"
+          ports:
+            - containerPort: 8500
+              name: http
+            - containerPort: 8600
+              protocol: UDP
+              name: dns
+          volumeMounts:
+            - name: consul-data
+              mountPath: /consul/data
+          readinessProbe:
+            httpGet:
+              path: /v1/status/leader
+              port: 8500
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: consul-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 500Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: consul
+spec:
+  clusterIP: None
+  ports:
+    - name: http
+      port: 8500
+  selector:
+    app: consul
+
+---
+
+---
+# ========== Redis 精简部署 ==========
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.0-alpine
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              memory: "256Mi"
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          emptyDir: {}
+
+
+---
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
+  selector:
+    app: redis  # 匹配 Redis Deployment 的标签
+  type: ClusterIP  # 默认，集群内部访问
+---
+
+# ========== MySQL 优化部署 ==========
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+data:
+  init.sql: |
+    create database if not exists `daijia` ;
+    create database if not exists `daijia_valuation` ;
+    create database if not exists `daijia_driver` ;
+  my.cnf: |
+    [mysqld]
+    default-time-zone = '+08:00'
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "123456"
+          args:
+            - --init-file=/docker-entrypoint-initdb.d/init.sql
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+            - name: config
+              mountPath: /docker-entrypoint-initdb.d/init.sql
+              subPath: init.sql
+            - name: config
+              mountPath: /etc/mysql/conf.d/daijia_mysql.cnf
+              subPath: my.cnf
+          resources:
+            requests:
+              memory: "512Mi"
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+        - name: config
+          configMap:
+            name: mysql-config
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  storageClassName: local-path  # 关键！显式指定存储类
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+
+---
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  type: ClusterIP  # ✅ 指定类型为 ClusterIP
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    app: mysql
+---
+
+
+
+# ========== Jaeger 轻量部署 ==========
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+spec:
+  selector:
+    matchLabels:
+      app: jaeger
+  template:
+    metadata:
+      labels:
+        app: jaeger
+    spec:
+      containers:
+        - name: jaeger
+          image: jaegertracing/jaeger
+          ports:
+            - containerPort: 16686
+              name: ui
+            - containerPort: 6831
+              protocol: UDP
+              name: agent
+          env:
+            - name: SPAN_STORAGE_TYPE
+              value: memory
+          resources:
+            requests:
+              memory: "256Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+spec:
+  type: NodePort
+  ports:
+    - port: 16686
+      targetPort: 16686
+      nodePort: 30001
+      name: ui
+    - port: 6831
+      targetPort: 6831
+      protocol: UDP
+      name: agent
+    - port: 14268  # 新增
+      targetPort: 14268
+      name: http-collector
+      protocol: TCP  # 必须指定为 TCP
+  selector:
+    app: jaeger
+---
+
+# ========== 初始化任务 ==========
+# consul-init-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: consul-init
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-consul
+          image: curlimages/curl:8.2.1
+          command:
+            - sh
+            - -c
+            - |
+              until nslookup consul-0.consul.default.svc.cluster.local &&
+                    curl -sf http://consul-0.consul.default.svc.cluster.local:8500/v1/status/leader;
+              do
+                echo "Waiting for Consul DNS and API...";
+                sleep 5;
+              done
+      containers:
+        - name: init
+          image: hashicorp/consul
+          command:
+            - consul
+            - kv
+            - put
+            - "-http-addr=http://consul.default.svc.cluster.local:8500"
+            - "map/amap.yaml"
+            - "@/config/amap.yaml"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          configMap:
+            name: consul-config
+      restartPolicy: OnFailure
+
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-to-redis
+spec:
+  podSelector:
+    matchLabels:
+      app: kratos  # 目标 Pod 标签
+  policyTypes:
+    - Egress  # 控制出站流量
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis  # 允许访问 Redis 服务
+      ports:
+        - protocol: TCP
+          port: 6379  # Redis 端口
+
+
+---
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-to-mysql
+spec:
+  podSelector:
+    matchLabels:
+      app: kratos
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: mysql  # 允许访问 MySQL 服务
+      ports:
+        - protocol: TCP
+          port: 3306  # MySQL 端口
+
+---
+
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-to-consul
+spec:
+  podSelector:
+    matchLabels:
+      app: kratos
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: consul  # 允许访问 Consul 服务
+      ports:
+        - protocol: TCP
+          port: 8500  # Consul HTTP 端口
+        - protocol: UDP
+          port: 8600  # Consul DNS 端口（UDP）
+
+---
+
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-to-jaeger
+spec:
+  podSelector:
+    matchLabels:
+      app: kratos
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: jaeger  # 允许访问 Jaeger 服务
+      ports:
+        - protocol: TCP
+          port: 16686  # Jaeger Web UI 端口
+        - protocol: UDP
+          port: 6831   # Jaeger Agent 端口（UDP）
+---
