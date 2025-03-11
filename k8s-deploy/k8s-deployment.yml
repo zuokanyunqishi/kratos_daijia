@@ -18,7 +18,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: consul
-          image: hashicorp/consul:1.15
+          image: 192.168.0.185:30003/dockerhub/hashicorp/consul:1.15
           args:
             - "agent"
             - "-server"
@@ -146,7 +146,7 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: mysql
+          image: 192.168.0.185:30003/dockerhub/mysql
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: "123456"
@@ -223,7 +223,7 @@ spec:
     spec:
       containers:
         - name: jaeger
-          image: jaegertracing/jaeger
+          image: 192.168.0.185:30003/dockerhub/jaegertracing/jaeger
           ports:
             - containerPort: 16686
               name: ui
@@ -285,7 +285,7 @@ spec:
               done
       containers:
         - name: init
-          image: hashicorp/consul
+          image: 192.168.0.185:30003/dockerhub/hashicorp/consul
           command:
             - consul
             - kv
