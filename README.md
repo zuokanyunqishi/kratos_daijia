@@ -1,5 +1,5 @@
 ### docker-compose 初始化环境
-   [环境初始化](docker-compose-deploy/docker-compose.yaml)
+   [环境初始化](deployments/docker-compose-deploy/docker-compose.yaml)
    
 
 ### 环境初始化化成功后

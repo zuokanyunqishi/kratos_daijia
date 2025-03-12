@@ -1,6 +1,7 @@
-*
+init.sql
 !.gitignore
 
 !amap.yaml_demo
 !daijia_mysql.cnf
 !init.sql
+amap.yaml

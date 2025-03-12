@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kratos-customer-service
+  name: kratos-map-service
   labels:
     app: kratos
     tier: backend
@@ -20,20 +20,22 @@ spec:
     spec:
       containers:
         - name: kratos
-          image: 192.168.0.185:30003/daijia/daijia-customer:v1
-          command: [ "./customer", "-conf", "/data/conf" ]
+          image: 192.168.0.185:30003/daijia/daijia-map:v1
+          command: [ "./map", "-conf", "/data/conf" ]
           #        command:  ["sh", "-c", "while true; do sleep 1; done"]
-          #        CMD ["dlv", "exec", "./customer", "--headless", "--listen=:2345", "--api-version=2", "--", "-conf", "/data/conf"]
+          #        CMD ["dlv", "exec", "./map", "--headless", "--listen=:2345", "--api-version=2", "--", "-conf", "/data/conf"]
           ports:
-            - containerPort: 8100
+            - containerPort: 8200
               protocol: TCP  # 显式指定协议（可选）
-            - containerPort: 9100
+            - containerPort: 9200
               protocol: TCP
             - containerPort: 2345
               protocol: TCP
           env:
             - name: ENV_MODE
               value: "production"
+            - name: TZ
+              value: Asia/Shanghai  # 设置东八区时区
           resources:
             requests:
               memory: "256Mi"
@@ -59,4 +61,4 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: kratos-customer-config
+            name: kratos-map-config

@@ -1,0 +1,64 @@
+# deployments/k8s/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kratos-customer-service
+  labels:
+    app: kratos
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kratos
+  template:
+    metadata:
+      labels:
+        app: kratos
+      annotations:
+        prometheus.io/scrape: "true"  # 监控注解
+    spec:
+      containers:
+        - name: kratos
+          image: 192.168.0.185:30003/daijia/daijia-customer:v1
+          command: [ "./customer", "-conf", "/data/conf" ]
+          #        command:  ["sh", "-c", "while true; do sleep 1; done"]
+          #        CMD ["dlv", "exec", "./customer", "--headless", "--listen=:2345", "--api-version=2", "--", "-conf", "/data/conf"]
+          ports:
+            - containerPort: 8100
+              protocol: TCP  # 显式指定协议（可选）
+            - containerPort: 9100
+              protocol: TCP
+            - containerPort: 2345
+              protocol: TCP
+          env:
+            - name: ENV_MODE
+              value: "production"
+            - name: TZ
+              value: Asia/Shanghai  # 设置东八区时区
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+#          livenessProbe:
+#            httpGet:
+#              path: /healthz
+#              port: 8000
+#            initialDelaySeconds: 10
+#            periodSeconds: 5
+#          readinessProbe:
+#            httpGet:
+#              path: /readyz
+#              port: 8000
+#            initialDelaySeconds: 5
+#            periodSeconds: 5
+          volumeMounts:
+            - name: config-volume
+              mountPath: /data/conf
+      volumes:
+        - name: config-volume
+          configMap:
+            name: kratos-customer-config
