@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kratos-customer-service
+  name: kratos-verifycode-service
   labels:
     app: kratos
     tier: backend
@@ -20,14 +20,14 @@ spec:
     spec:
       containers:
         - name: kratos
-          image: 192.168.0.185:30003/daijia/daijia-customer:v1
-          command: [ "./customer", "-conf", "/data/conf" ]
+          image: 192.168.0.185:30003/daijia/daijia-verifycode:v1
+          command: [ "./verifyCode", "-conf", "/data/conf" ]
           #        command:  ["sh", "-c", "while true; do sleep 1; done"]
-          #        CMD ["dlv", "exec", "./customer", "--headless", "--listen=:2345", "--api-version=2", "--", "-conf", "/data/conf"]
+          #        CMD ["dlv", "exec", "./verifyCode", "--headless", "--listen=:2345", "--api-version=2", "--", "-conf", "/data/conf"]
           ports:
-            - containerPort: 8100
+            - containerPort: 8600
               protocol: TCP  # 显式指定协议（可选）
-            - containerPort: 9100
+            - containerPort: 9600
               protocol: TCP
             - containerPort: 2345
               protocol: TCP
@@ -43,22 +43,22 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
-#          livenessProbe:
-#            httpGet:
-#              path: /healthz
-#              port: 8000
-#            initialDelaySeconds: 10
-#            periodSeconds: 5
-#          readinessProbe:
-#            httpGet:
-#              path: /readyz
-#              port: 8000
-#            initialDelaySeconds: 5
-#            periodSeconds: 5
+          #          livenessProbe:
+          #            httpGet:
+          #              path: /healthz
+          #              port: 8000
+          #            initialDelaySeconds: 10
+          #            periodSeconds: 5
+          #          readinessProbe:
+          #            httpGet:
+          #              path: /readyz
+          #              port: 8000
+          #            initialDelaySeconds: 5
+          #            periodSeconds: 5
           volumeMounts:
             - name: config-volume
               mountPath: /data/conf
       volumes:
         - name: config-volume
           configMap:
-            name: kratos-customer-config
+            name: kratos-verifycode-config

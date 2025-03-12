@@ -19,6 +19,9 @@ spec:
       containers:
         - name: consul
           image: 192.168.0.185:30003/dockerhub/hashicorp/consul:1.15
+          env: # 新增环境变量
+            - name: TZ
+              value: Asia/Shanghai
           args:
             - "agent"
             - "-server"
@@ -43,11 +46,15 @@ spec:
               port: 8500
             initialDelaySeconds: 15
             timeoutSeconds: 5
+      volumes:
+        - name: tz-config
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Shanghai
   volumeClaimTemplates:
     - metadata:
         name: consul-data
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
             storage: 500Mi
@@ -85,6 +92,9 @@ spec:
       containers:
         - name: redis
           image: redis:7.0-alpine
+          env: # 新增
+            - name: TZ
+              value: Asia/Shanghai
           ports:
             - containerPort: 6379
           resources:
@@ -95,7 +105,7 @@ spec:
               mountPath: /data
       volumes:
         - name: redis-data
-          emptyDir: {}
+          emptyDir: { }
 
 
 ---
@@ -123,12 +133,16 @@ metadata:
   name: mysql-config
 data:
   init.sql: |
-    create database if not exists `daijia` ;
-    create database if not exists `daijia_valuation` ;
-    create database if not exists `daijia_driver` ;
+    create
+    database if not exists `daijia` ;
+    create
+    database if not exists `daijia_valuation` ;
+    create
+    database if not exists `daijia_driver` ;
   my.cnf: |
     [mysqld]
     default-time-zone = '+08:00'
+    pid-file = /var/lib/mysql/mysqld.pid
 
 ---
 apiVersion: apps/v1
@@ -233,9 +247,19 @@ spec:
           env:
             - name: SPAN_STORAGE_TYPE
               value: memory
+            - name: TZ
+              value: Asia/Shanghai
+          volumeMounts: # 新增
+            - name: tz-config
+              mountPath: /etc/localtime
+              readOnly: true
           resources:
             requests:
               memory: "256Mi"
+      volumes:
+        - name: tz-config
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Shanghai
 
 ---
 apiVersion: v1
@@ -286,6 +310,9 @@ spec:
       containers:
         - name: init
           image: 192.168.0.185:30003/dockerhub/hashicorp/consul
+          env: # 新增
+            - name: TZ
+              value: Asia/Shanghai
           command:
             - consul
             - kv
@@ -296,10 +323,16 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
+            - name: tz-config
+              mountPath: /etc/localtime
+              readOnly: true
       volumes:
         - name: config
           configMap:
             name: consul-config
+        - name: tz-config
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Shanghai
       restartPolicy: OnFailure
 
 
