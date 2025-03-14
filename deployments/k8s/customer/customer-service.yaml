@@ -12,15 +12,9 @@ spec:
 #    - name: metrics  # Prometheus 指标端口
 #      port: 9090
 #      targetPort: 9090
-    - name: http-api  # 暴露 8100 HTTP 接口
-      port: 8100
-      targetPort: 8100
-      nodePort: 31000  # 显式指定 NodePort
-    - name: grpc-api  # 暴露 9100 gRPC 接口
+    - name: metrics
       port: 9100
       targetPort: 9100
-      nodePort: 31001  # 显式指定 NodePort
-  type: NodePort
 
 
 ---
